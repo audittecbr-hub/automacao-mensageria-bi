@@ -1,0 +1,27 @@
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+# Habilitar regras comuns
+select = ["E", "F", "I", "W"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["E402", "E501"]
+"modules/ina/debug_*.py" = ["E402", "E722", "E501"]
+"modules/ina/deep_compare*.py" = ["E722", "E501"]
+"scripts/archive/*.py" = ["E722", "E501", "F401"]
+"tests/*.py" = ["E402", "E501"]
+"modules/**/inspect_*.py" = ["E402", "E501"]
+"core/services/powerbi_data.py" = ["E402"]
+"modules/ina/runner.py" = ["E402"]
+"modules/metas/runner.py" = ["E402"]
+"modules/unidades/runner.py" = ["E402"]
+"api_server.py" = ["E402"]
+"scheduler.py" = ["E402"]
+"config.py" = ["E402"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["core*", "modules*", "utils*", "config*"]
+exclude = ["tests*", "archive*"]
