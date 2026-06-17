@@ -13,17 +13,17 @@ def _normalize_key(s: str) -> str:
 
 class MetasRenderer(BaseRenderer):
     """
-    Renderizador para relat├│rios de Metas e Rankings.
+    Renderizador para relatórios de Metas e Rankings.
     """
 
     def generate_ranking_image(self, title, data, metrics=None, output_path="ranking.png"):
         """
-        Gera uma imagem de Ranking (estilo tabela) com Top 10 e m├®tricas adicionais.
+        Gera uma imagem de Ranking (estilo tabela) com Top 10 e métricas adicionais.
         """
-        # Calcular altura necess├íria
+        # Calcular altura necessária
         num_items = len(data) if data else 0
         num_metrics = len(metrics) if metrics else 0
-        card_height = 80 + (num_items * 48)  # Mais espa├ºo entre itens
+        card_height = 80 + (num_items * 48)  # Mais espaço entre itens
         metrics_height = 100 + (num_metrics * 35) if metrics else 0
         height = 100 + card_height + 50 + metrics_height + 50
 
@@ -41,13 +41,13 @@ class MetasRenderer(BaseRenderer):
         font_metric_label = self._get_font(11)
         font_metric_value = self._get_font(24, bold=True)
 
-        # Header (Usando o m├®todo base refatorado, adaptando chamadas antigas se necess├írio)
-        # O m├®todo antigo usava _draw_header com l├│gica fixa. Agora usamos o base.
-        # title ├® passado. Data ├® 'agora'.
-        now_str = datetime.now().strftime("%d/%m/%Y ├ás %H:%M")
+        # Header (Usando o método base refatorado, adaptando chamadas antigas se necessário)
+        # O método antigo usava _draw_header com lógica fixa. Agora usamos o base.
+        # title é passado. Data é 'agora'.
+        now_str = datetime.now().strftime("%d/%m/%Y às %H:%M")
 
-        # Nota: O generate_ranking_image original n├úo usava _draw_header refatorado, ele tinha l├│gica inline.
-        # Vamos substituir pela chamada padronizada para consist├¬ncia.
+        # Nota: O generate_ranking_image original não usava _draw_header refatorado, ele tinha lógica inline.
+        # Vamos substituir pela chamada padronizada para consistência.
         header_h = self._draw_header(draw, title.upper(), now_str)
 
         y = header_h + 30
@@ -192,7 +192,7 @@ class MetasRenderer(BaseRenderer):
         h_large = 260
         h_short = 195
 
-        # Recalcular altura total da imagem baseada no conte├║do real
+        # Recalcular altura total da imagem baseada no conteúdo real
         # First, draw header to get its height
         temp_img = Image.new("RGB", (self.width, 1), self.bg_color)  # Dummy image for header height calc
         temp_draw = ImageDraw.Draw(temp_img)
@@ -309,15 +309,15 @@ class MetasRenderer(BaseRenderer):
         card_w = (self.width - 2 * margin - card_gap) // 2
 
         for pair in dept_pairs:
-            # Altura da linha baseada no maior cart├úo da dupla
+            # Altura da linha baseada no maior cartão da dupla
             row_h = max(h_short if is_short(lbl) else h_large for _, lbl in pair)
 
             for i, (key, label) in enumerate(pair):
                 cx = margin + i * (card_w + card_gap)
                 data = dept_map.get(key, {})
-                # Desenha o cart├úo com a altura da linha para manter alinhamento visual se necess├írio,
+                # Desenha o cartão com a altura da linha para manter alinhamento visual se necessário,
                 # OU usa a altura individual se preferir que um seja menor que o outro na mesma linha.
-                # O usu├írio reclamou do espa├ºo vazio, ent├úo vou usar a altura individual para o fundo do cart├úo.
+                # O usuário reclamou do espaço vazio, então vou usar a altura individual para o fundo do cartão.
                 card_h_individual = h_short if is_short(label) else h_large
                 self._draw_dept_card(draw, cx, y, card_w, card_h_individual, label, data, is_small=False)
 
@@ -495,7 +495,7 @@ class MetasRenderer(BaseRenderer):
         liquido = str(data.get("liquido", "-"))
 
         ry = my + 3
-        line_h = 18  # Espa├ºamento entre linhas
+        line_h = 18  # Espaçamento entre linhas
 
         # Label TOTAL (corresponde ao dashboard)
         draw.text(
@@ -511,11 +511,11 @@ class MetasRenderer(BaseRenderer):
             fill=self.text_color,
         )
 
-        # Regra de neg├│cio: Comercial, Operacional e GS n├úo t├¬m Repasse e L├¡quido
+        # Regra de negócio: Comercial, Operacional e GS não têm Repasse e Líquido
         hide_repasse_liquido = title.upper() in ["COMERCIAL", "OPERACIONAL", "GS", "GS - RESUMO GERAL"]
 
         if not hide_repasse_liquido:
-            # REPASSE ÔÇö exibido sempre, mostra R$ 0 se vazio
+            # REPASSE — exibido sempre, mostra R$ 0 se vazio
             sub_y = ry + line_h + 22
             draw.text(
                 (x + pad, sub_y),
@@ -720,7 +720,7 @@ class MetasRenderer(BaseRenderer):
 
         nome = departamento.get("nome", "DEPARTAMENTO").upper()
         data_geracao = (datetime.now() - timedelta(days=1)).strftime("%d/%m/%Y")
-        periodo_display = f"Per├¡odo: {data_geracao}"
+        periodo_display = f"Período: {data_geracao}"
 
         header_h = self._draw_header(draw, nome, periodo_display)
         y = header_h + 15
@@ -839,7 +839,7 @@ class MetasRenderer(BaseRenderer):
 
         draw.text(
             (25, height - 25),
-            "Grupo Studio ÔÇó Automa├º├úo Power BI",
+            "Grupo Studio • Automação Power BI",
             font=font_small,
             fill=(80, 80, 80),
         )
