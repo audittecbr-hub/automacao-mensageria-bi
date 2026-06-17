@@ -59,7 +59,6 @@ def get_receitas_query(date_start, date_end):
         ROW(
             "OutrasReceitas", [Valor_OutrasReceitas],
             "InterCompany", [Valor_InterCompany],
-            "NaoIdentificada", [Valor_NaoIdentificada],
             "SemCategoria", [Valor_Sem_Categoria],
             "Repasse", [total_repasse],
             "TotalGeral", (
