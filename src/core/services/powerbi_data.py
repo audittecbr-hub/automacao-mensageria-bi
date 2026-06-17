@@ -277,7 +277,9 @@ class PowerBIDataFetcher:
             ("realizados", self.fetch_valores_realizados, ()),
             ("receitas_raw", self.fetch_receitas, ()),
             ("metas_gs", self.fetch_metas_departamento, ("GS_Metas", "GS")),
-            ("pct_gs", self.fetch_percentuais_gs, ()),
+            # pct_gs removido: a medida DAX [% Meta X GS] depende de [Total_GS] ->
+            # tabela 'ContasReceber' (indisponível). O percentual GS agora é
+            # calculado localmente em fetch_all_data (realizado_gs / meta).
             ("metas_com_op", self.fetch_metas_comercial_operacional, ()),
             ("pct_com_op", self.fetch_percentuais_comercial_operacional, ()),
         ]
@@ -303,7 +305,6 @@ class PowerBIDataFetcher:
         realizados = results.get("realizados", {})
         receitas_raw = results.get("receitas_raw", {})
         metas_gs = results.get("metas_gs", {"meta1": 0, "meta2": 0, "meta3": 0})
-        pct_gs = results.get("pct_gs", {"pct_meta1": 0, "pct_meta2": 0, "pct_meta3": 0})
         metas_com_op = results.get("metas_com_op", {})
         pct_com_op = results.get("pct_com_op", {})
 
@@ -311,15 +312,22 @@ class PowerBIDataFetcher:
         real_operacional = realizados.get("Operacional", 0)
         realizado_gs = real_comercial + real_operacional
 
+        # Percentuais GS calculados localmente (realizado consolidado / meta).
+        # As medidas DAX [% Meta X GS] dependem de [Total_GS] -> tabela 'ContasReceber',
+        # indisponível no modelo PBI, e retornam 0. Calcular aqui mantém a barra
+        # consistente com o REALIZADO exibido (Comercial + Operacional).
+        def _pct_gs(meta):
+            return (realizado_gs / meta * 100) if meta else 0
+
         total_gs = {
             "meta1": format_currency(metas_gs.get("meta1", 0)),
             "meta2": format_currency(metas_gs.get("meta2", 0)),
             "meta3": format_currency(metas_gs.get("meta3", 0)),
-            "pct_meta1": pct_gs.get("pct_meta1", 0),
-            "pct_meta2": pct_gs.get("pct_meta2", 0),
-            "pct_meta3": pct_gs.get("pct_meta3", 0),
+            "pct_meta1": _pct_gs(metas_gs.get("meta1", 0)),
+            "pct_meta2": _pct_gs(metas_gs.get("meta2", 0)),
+            "pct_meta3": _pct_gs(metas_gs.get("meta3", 0)),
             "realizado": format_currency(realizado_gs),
-            "percent": format_percent(pct_gs.get("pct_meta1", 0)),
+            "percent": format_percent(_pct_gs(metas_gs.get("meta1", 0))),
         }
 
         departamentos: list[dict] = []
