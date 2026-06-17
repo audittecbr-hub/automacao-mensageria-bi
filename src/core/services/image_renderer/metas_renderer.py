@@ -196,7 +196,7 @@ class MetasRenderer(BaseRenderer):
         # First, draw header to get its height
         temp_img = Image.new("RGB", (self.width, 1), self.bg_color)  # Dummy image for header height calc
         temp_draw = ImageDraw.Draw(temp_img)
-        header_h = self._draw_header(temp_draw, "RELATÓRIO DE METAS", periodo)
+        header_h = self._draw_header(temp_draw, "Acompanhamento da Meta Caixa GRUPO Studio", periodo)
 
         current_y = header_h + padding
         if total_gs:
@@ -223,7 +223,7 @@ class MetasRenderer(BaseRenderer):
         margin = 15
         card_gap = 10
 
-        header_h = self._draw_header(draw, "RELATÓRIO DE METAS", periodo)
+        header_h = self._draw_header(draw, "Acompanhamento da Meta Caixa GRUPO Studio", periodo)
         y = header_h + padding
 
         if total_gs:
