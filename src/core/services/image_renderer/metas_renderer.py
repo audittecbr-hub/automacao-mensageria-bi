@@ -304,6 +304,22 @@ class MetasRenderer(BaseRenderer):
                 fill=self.text_color,
             )
 
+            # Realizado incluindo o repasse total (bruto consolidado)
+            real_rep = str(total_gs.get("realizado_com_repasse", "R$ 0,00"))
+            rep_y = real_y + 44  # abaixo do valor grande do REALIZADO
+            draw.text(
+                (margin + pad, rep_y),
+                "REALIZADO C/ REPASSE:",
+                font=font_small,
+                fill=self.muted_text,
+            )
+            draw.text(
+                (margin + pad, rep_y + 14),
+                real_rep,
+                font=font_value,
+                fill=self.gold_color,
+            )
+
             y += card_h + padding
 
         card_w = (self.width - 2 * margin - card_gap) // 2

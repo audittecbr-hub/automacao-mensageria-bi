@@ -312,6 +312,13 @@ class PowerBIDataFetcher:
         real_operacional = realizados.get("Operacional", 0)
         realizado_gs = real_comercial + real_operacional
 
+        # Repasse total (passthrough). Antecipado aqui para reuso no total_gs;
+        # usa [total_repasse] do PBI ou, na ausência, a soma dos repasses por dept.
+        repasse_raw = receitas_raw.get("repasse", 0)
+        repasse_final = repasse_raw if repasse_raw else sum(
+            realizados.get(f"{n}_Repasse", 0) for n, _, _ in _DEPARTAMENTOS_CONFIG
+        )
+
         # Percentuais GS calculados localmente (realizado consolidado / meta).
         # As medidas DAX [% Meta X GS] dependem de [Total_GS] -> tabela 'ContasReceber',
         # indisponível no modelo PBI, e retornam 0. Calcular aqui mantém a barra
@@ -327,6 +334,7 @@ class PowerBIDataFetcher:
             "pct_meta2": _pct_gs(metas_gs.get("meta2", 0)),
             "pct_meta3": _pct_gs(metas_gs.get("meta3", 0)),
             "realizado": format_currency(realizado_gs),
+            "realizado_com_repasse": format_currency(realizado_gs + repasse_final),
             "percent": format_percent(_pct_gs(metas_gs.get("meta1", 0))),
         }
 
@@ -388,11 +396,6 @@ class PowerBIDataFetcher:
                     "percent": format_percent(pct.get("pct_meta1", 0)),
                 }
             )
-
-        repasse_raw = receitas_raw.get("repasse", 0)
-        repasse_final = repasse_raw if repasse_raw else sum(
-            realizados.get(f"{n}_Repasse", 0) for n, _, _ in _DEPARTAMENTOS_CONFIG
-        )
 
         receitas = {
             "outras": format_currency(receitas_raw.get("outras", 0)),
