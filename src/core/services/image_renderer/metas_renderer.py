@@ -531,6 +531,8 @@ class MetasRenderer(BaseRenderer):
         hide_repasse_liquido = title.upper() in ["COMERCIAL", "OPERACIONAL", "GS", "GS - RESUMO GERAL"]
 
         if not hide_repasse_liquido:
+            repasse_pct = data.get("repasse_pct", 0)
+
             # REPASSE — exibido sempre, mostra R$ 0 se vazio
             sub_y = ry + line_h + 22
             draw.text(
@@ -540,12 +542,40 @@ class MetasRenderer(BaseRenderer):
                 fill=self.muted_text,
             )
             repasse_display = repasse if repasse not in ("-", "", "R$ 0,00") else "R$ 0"
+            value_font = self._get_font(12, bold=True)
             draw.text(
                 (x + pad, sub_y + 13),
                 repasse_display,
-                font=self._get_font(12, bold=True),
+                font=value_font,
                 fill=self.gold_color,
             )
+
+            # Badge de % só nos departamentos pedidos pelo usuário (Corporate, Tax, Tecnologia)
+            show_pct_badge = title.upper() in ["CORPORATE", "TAX", "TECNOLOGIA"]
+
+            if repasse_pct and show_pct_badge:
+                # Percentual do total em um badge compacto ao lado do valor — destaca
+                # sem inserir mais uma linha horizontal concorrendo com as barras de Meta.
+                value_bbox = draw.textbbox((x + pad, sub_y + 13), repasse_display, font=value_font)
+
+                pct_text = f"{repasse_pct:.0f}%"
+                pct_font = self._get_font(9, bold=True)
+                pct_bbox = draw.textbbox((0, 0), pct_text, font=pct_font)
+
+                # Centraliza verticalmente o badge em relação ao valor ao lado
+                pct_x = value_bbox[2] + 8
+                pct_y = (value_bbox[1] + value_bbox[3]) / 2 - (pct_bbox[1] + pct_bbox[3]) / 2
+
+                badge_pad_x, badge_pad_y = 5, 3
+                draw.rounded_rectangle(
+                    [
+                        (pct_x + pct_bbox[0] - badge_pad_x, pct_y + pct_bbox[1] - badge_pad_y),
+                        (pct_x + pct_bbox[2] + badge_pad_x, pct_y + pct_bbox[3] + badge_pad_y),
+                    ],
+                    radius=4,
+                    fill=(57, 52, 39),  # dourado bem esmaecido sobre o fundo do card
+                )
+                draw.text((pct_x, pct_y), pct_text, font=pct_font, fill=self.gold_color)
 
             # VALOR LÍQUIDO — exibido sempre, mostra R$ 0 se vazio
             liq_y = sub_y + 32

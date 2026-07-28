@@ -380,6 +380,8 @@ class PowerBIDataFetcher:
             pct = results.get(f"pct_{nome}", {"pct_meta1": 0, "pct_meta2": 0, "pct_meta3": 0})
             liquido_val = realizados.get(nome, 0)
             repasse_val = realizados.get(f"{nome}_Repasse", 0)
+            total_bruto = liquido_val + repasse_val
+            repasse_pct = (repasse_val / total_bruto * 100) if total_bruto else 0
 
             departamentos.append(
                 {
@@ -390,8 +392,9 @@ class PowerBIDataFetcher:
                     "pct_meta1": pct.get("pct_meta1", 0),
                     "pct_meta2": pct.get("pct_meta2", 0),
                     "pct_meta3": pct.get("pct_meta3", 0),
-                    "realizado": format_currency(liquido_val + repasse_val),  # Total Bruto
+                    "realizado": format_currency(total_bruto),  # Total Bruto
                     "repasse": format_currency(repasse_val),
+                    "repasse_pct": repasse_pct,  # % que o repasse representa do total bruto
                     "liquido": format_currency(liquido_val),
                     "percent": format_percent(pct.get("pct_meta1", 0)),
                 }
