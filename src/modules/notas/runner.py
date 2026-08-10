@@ -66,7 +66,8 @@ class NotasAutomation:
                 "nome": primeiro_nome,
                 "nome_completo": nome,
                 "saudacao": saudacao,
-                "saudacao_lower": saudacao.lower()
+                "saudacao_lower": saudacao.lower(),
+                "data": datetime.now().strftime("%d/%m/%Y")
             }
             
             try:
