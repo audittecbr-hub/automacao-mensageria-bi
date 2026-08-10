@@ -45,6 +45,17 @@ def job_unidades(recipients=None, template_content=None, report_type="daily"):
     ua.run(report_type=report_type, recipients=recipients, template_content=template_content)
 
 
+def job_notas(recipients=None, template_content=None):
+    """Executa a automação de Notas Emitidas (Power BI)."""
+    from src.modules.notas.runner import NotasAutomation
+
+    logger.info("Iniciando Notas Automation")
+    SupabaseService().log_event("job_start", {"job": "notas_emitidas"})
+
+    na = NotasAutomation()
+    na.run(recipients=recipients, template_content=template_content)
+
+
 def job_refresh_pbi_token():
     """Tarefa de background para renovar o token do Power BI."""
     from datetime import datetime
@@ -204,6 +215,7 @@ JOB_MAPPING = {
     "painel_ina": job_painel_ina,
     "unidades_diarias": lambda **kwargs: job_unidades(report_type="daily", **kwargs),
     "unidades_semanais": lambda **kwargs: job_unidades(report_type="weekly", **kwargs),
+    "notas_emitidas": job_notas,
     "pbi_token_refresh": job_refresh_pbi_token,
     "pbi_refresh_dashboards": job_refresh_dashboards,
 }
