@@ -11,6 +11,7 @@ from .image_renderer.jobs_renderer import JobsRenderer
 # from services.image_renderer.unidades_renderer import UnidadesRenderer
 from .image_renderer.metas_renderer import MetasRenderer
 from .image_renderer.unidades_renderer import UnidadesRenderer
+from .image_renderer.notas_renderer import NotasRenderer
 
 
 class ImageGenerator:
@@ -23,6 +24,7 @@ class ImageGenerator:
         self.metas_renderer = MetasRenderer()
         self.unidades_renderer = UnidadesRenderer()
         self.jobs_renderer = JobsRenderer()
+        self.notas_renderer = NotasRenderer()
 
     def generate_ranking_image(self, title, data, metrics=None, output_path="ranking.png"):
         return self.metas_renderer.generate_ranking_image(title, data, metrics, output_path)
@@ -54,6 +56,9 @@ class ImageGenerator:
         output_path="jobs_report.pdf",
     ):
         return self.jobs_renderer.generate_jobs_report(new_jobs, cancelled_jobs, report_title, output_path)
+
+    def generate_notas_image(self, data, output_path="notas.png"):
+        return self.notas_renderer.generate_notas_image(data, output_path)
 
 
 if __name__ == "__main__":
