@@ -16,7 +16,7 @@ class NotasDataFetcher:
         # Utilizando o workspace e dataset padrão configurado
         self.client = PowerBIClient(
             workspace_id=POWERBI_CONFIG.get("metas_workspace_id", POWERBI_CONFIG.get("workspace_id")),
-            dataset_id=POWERBI_CONFIG.get("metas_dataset_id")
+            dataset_id=POWERBI_CONFIG.get("notas_dataset_id")
         )
         self._authenticated = False
 

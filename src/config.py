@@ -46,6 +46,7 @@ POWERBI_CONFIG = {
     # Dataset ID específico para cada automação (variáveis preferidas)
     "metas_workspace_id": os.getenv("POWERBI_METAS_WORKSPACE_ID", os.getenv("POWERBI_WORKSPACE_ID")),
     "metas_dataset_id": os.getenv("POWERBI_METAS_DATASET_ID"),
+    "notas_dataset_id": os.getenv("POWERBI_NOTAS_DATASET_ID", "e8091511-60d7-4b54-80bf-c586fdc49a64"),
     "ina_workspace_id": os.getenv("POWERBI_INA_WORKSPACE_ID", os.getenv("POWERBI_WORKSPACE_ID")),
     "ina_dataset_id": os.getenv("POWERBI_INA_DATASET_ID"),
     "unidades_workspace_id": os.getenv("POWERBI_UNIDADES_WORKSPACE_ID", os.getenv("POWERBI_WORKSPACE_ID")),
