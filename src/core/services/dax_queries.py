@@ -229,6 +229,7 @@ def get_unidades_list_query(date_start, date_end, status="Nova"):
 def get_notas_emitidas_query(date_start, date_end):
     """
     Retorna a contagem de notas emitidas agrupadas por empresa e CNPJ.
+    Desconsidera títulos com status CANCELADO.
     """
     return f"""
     EVALUATE
@@ -239,7 +240,8 @@ def get_notas_emitidas_query(date_start, date_end):
             'public contas_receber_grupo',
             'public contas_receber_grupo'[data_emissao] >= {date_start} &&
             'public contas_receber_grupo'[data_emissao] <= {date_end} &&
-            NOT ISBLANK('public contas_receber_grupo'[numero_documento_fiscal])
+            NOT ISBLANK('public contas_receber_grupo'[numero_documento_fiscal]) &&
+            'public contas_receber_grupo'[status_titulo] <> "CANCELADO"
         ),
         "Qtd_Notas", COUNT('public contas_receber_grupo'[numero_documento_fiscal]),
         "Valor_Total", SUM('public contas_receber_grupo'[valor_documento])
