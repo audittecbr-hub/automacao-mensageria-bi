@@ -1,0 +1,11 @@
+﻿
+
+[Hon_Encontrados_Card]  : 416291603,737446
+[Hon_Apresentados_Card] : 
+[Hon_Aprovados_Card]    : 47069705,84501
+[Hon_Negociacao_Card]   : 
+[Hon_Perdidos_Card]     : 
+[Hon_NaoAprov_Card]     : 
+
+
+

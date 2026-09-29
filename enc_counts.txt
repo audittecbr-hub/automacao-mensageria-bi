@@ -1,0 +1,13 @@
+﻿
+
+[Count_Enc_Total_Encontrado_MovRange]     : 2302
+[Sum_Enc_Total_Encontrado_MovRange]       : 5196429781,29003
+[Count_Enc_Hon_Total_Encontrado_MovRange] : 2102
+[Sum_Enc_Hon_Total_Encontrado_MovRange]   : 696983976,041067
+[Count_Enc_RT_Total_Encontrado]           : 1275
+[Sum_Enc_RT_Total_Encontrado]             : 2927150061,42
+[Count_Enc_RT_Hon_Encontrado]             : 1196
+[Sum_Enc_RT_Hon_Encontrado]               : 416291603,737446
+
+
+

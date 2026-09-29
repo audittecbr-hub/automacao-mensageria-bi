@@ -1,0 +1,27 @@
+[
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorários aprovados em negociação",
+    "expression": "SUMX(\n    FILTER(\n        vw_powerbi_relatorio_aprovacao,\n        SEARCH(\"NEGOCI\", vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR], 1, 0) > 0 &&\n        (\n            SEARCH(\"AJU\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"COMP\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"ENTR\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"IMPL\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"RETIF\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0\n        )\n    ),\n    COALESCE(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_HONORARIOS_INICIAIS], vw_powerbi_relatorio_aprovacao[HONORARIOS_INICIAIS], 0) +\n    vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_COMPENSACAO] +\n    vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_RESTITUICAO] +\n    vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_AJUIZAMENTO]\n)"
+  },
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorários aprovados negociação iniciais",
+    "expression": "SUMX(\n    FILTER(\n        vw_powerbi_relatorio_aprovacao,\n        SEARCH(\"NEGOCI\", vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR], 1, 0) > 0 &&\n        (\n            SEARCH(\"AJU\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"COMP\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"ENTR\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"IMPL\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"RETIF\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0\n        )\n    ),\n    COALESCE(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_HONORARIOS_INICIAIS], vw_powerbi_relatorio_aprovacao[HONORARIOS_INICIAIS], 0)\n)"
+  },
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorários aprovados negociação compensação",
+    "expression": "SUMX(\n    FILTER(\n        vw_powerbi_relatorio_aprovacao,\n        SEARCH(\"NEGOCI\", vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR], 1, 0) > 0 &&\n        (\n            SEARCH(\"AJU\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"COMP\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"ENTR\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"IMPL\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"RETIF\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0\n        )\n    ),\n    vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_COMPENSACAO]\n)"
+  },
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorários aprovados negociação restituição",
+    "expression": "SUMX(\n    FILTER(\n        vw_powerbi_relatorio_aprovacao,\n        SEARCH(\"NEGOCI\", vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR], 1, 0) > 0 &&\n        (\n            SEARCH(\"AJU\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"COMP\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"ENTR\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"IMPL\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"RETIF\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0\n        )\n    ),\n    vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_RESTITUICAO]\n)"
+  },
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorários aprovados negociação ajuizamento",
+    "expression": "SUMX(\n    FILTER(\n        vw_powerbi_relatorio_aprovacao,\n        SEARCH(\"NEGOCI\", vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR], 1, 0) > 0 &&\n        (\n            SEARCH(\"AJU\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"COMP\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"ENTR\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"IMPL\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0 ||\n            SEARCH(\"RETIF\", vw_powerbi_relatorio_aprovacao[AREA_ATUAL], 1, 0) > 0\n        )\n    ),\n    vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_FORMA_UTLZ_AJUIZAMENTO]\n)"
+  }
+]

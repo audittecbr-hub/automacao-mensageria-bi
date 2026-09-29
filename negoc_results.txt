@@ -1,0 +1,10 @@
+﻿Ant: 'NEGOCIAÇÃO' | Atual: 'FIM' | Cnt: 826 | Iniciais: 358046 | Comp:  | Rest:  | Ajuiz:  | Total: 358046
+Ant: 'NEGOCIAÇÃO' | Atual: 'JURÍDICO' | Cnt: 17 | Iniciais: 0 | Comp:  | Rest:  | Ajuiz:  | Total: 0
+Ant: 'NEGOCIAÇÃO' | Atual: 'IMPLANTAÇÃO' | Cnt: 4 | Iniciais: 35000 | Comp:  | Rest:  | Ajuiz:  | Total: 35000
+Ant: 'NEGOCIAÇÃO' | Atual: 'PRAZO DE VALIDAÇÃO' | Cnt: 44 | Iniciais: 15 | Comp: 163608.43 | Rest:  | Ajuiz:  | Total: 163623.43
+Ant: 'NEGOCIAÇÃO' | Atual: 'REUNIÃO TÉCNICA' | Cnt: 1 | Iniciais: 0 | Comp:  | Rest:  | Ajuiz:  | Total: 0
+Ant: 'NEGOCIAÇÃO' | Atual: 'RETIFICAÇÃO' | Cnt: 132 | Iniciais: 30002 | Comp: 9938882.921 | Rest: 6650566.542 | Ajuiz: 272875.986 | Total: 16892327.449
+Ant: 'NEGOCIAÇÃO' | Atual: 'QUALIDADE' | Cnt: 61 | Iniciais: 46000 | Comp:  | Rest:  | Ajuiz:  | Total: 46000
+Ant: 'NEGOCIAÇÃO' | Atual: 'COMPENSAÇÃO' | Cnt: 21 | Iniciais: 0 | Comp:  | Rest:  | Ajuiz:  | Total: 0
+Ant: 'NEGOCIAÇÃO' | Atual: 'AJUÍZAMENTO' | Cnt: 10 | Iniciais: 0 | Comp:  | Rest:  | Ajuiz: 203545.0362 | Total: 203545.0362
+Ant: 'NEGOCIAÇÃO' | Atual: 'FATURADO' | Cnt: 6 | Iniciais: 5722 | Comp:  | Rest:  | Ajuiz:  | Total: 5722

@@ -1,0 +1,10 @@
+﻿
+vw_powerbi_relatorio_aprovacao[Regional] [Cnt]            [Sum]
+---------------------------------------- -----            -----
+Regional Sul                               352 130403694,007927
+Regional NNCO                              291 80884470,8020979
+Regional Sudeste 2                         256 114253493,457471
+Regional Sudeste                           296   90685728,18095
+Outras                                       1        64217,289
+
+

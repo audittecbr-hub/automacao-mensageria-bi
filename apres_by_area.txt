@@ -1,0 +1,38 @@
+﻿
+vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] [Sum_Hon_Apresentado]
+--------------------------------------------- ---------------------
+DISTRATO                                                          0
+PROCURAÇÃO ELETRÔNICA                                             0
+OPERAÇÃO                                              39173960,3304
+CHECKLIST                                              101420,19825
+REUNIÃO TÉCNICA                                    299858858,411438
+ENTREGA                                                3269755,4369
+STAND BY OPERAÇÃO                                                 0
+RETIFICAÇÃO                                        277746843,229562
+CADASTRO                                                 538068,965
+REVISÃO                                              67448525,35729
+NEGOCIAÇÃO                                         164098615,743438
+QUALIDADE                                               5548975,412
+COMPENSAÇÃO                                            6041976,6213
+PRAZO DE VALIDAÇÃO                                    24118818,4874
+FIM                                                    327046,03725
+ATA DE REUNIÃO                                         1443466,2111
+AJUÍZAMENTO                                              558708,586
+FATURADO                                                 13068,0897
+FINANCEIRO                                                        0
+NÃO FATURADO - COMERCIAL                                   44370,67
+IMPLANTAÇÃO                                             7332846,915
+PREDOT                                                            0
+MANIPULAÇÃO                                                       0
+PLANILHAMENTO                                                     0
+REVISTA                                                735986,55495
+STAND BY                                                          0
+FUNDO PERDIDO                                             30669,284
+INTIMAÇÃO                                               773044,8155
+NÃO FATURADO                                                      0
+MATERIAL                                                          0
+AUDITORIA TÉCNICA                                                 0
+VALIDAÇÃO SEFAZ                                                   0
+TREINAMENTO                                                       0
+
+

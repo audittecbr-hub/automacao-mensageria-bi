@@ -1,0 +1,150 @@
+﻿System.Management.Automation.MethodInvocationException: Exceção ao chamar "ExecuteReader" com "0" argumento(s): "Query (947, 16) The syntax for 'style' is incorrect. (EVALUATE ROW("Test", 
+
+VAR _css = "<style>
+:root { 
+    --bg: #0b0f19; 
+    --card: rgba(18, 24, 38, 0.6); 
+    --border: rgba(255, 255, 255, 0.08); 
+    --accent: #e2b35a; /* Executive Gold */
+    --accent-glow: rgba(226, 179, 90, 0.15);
+    --text-main: #f1f5f9; 
+    --text-sec: #94a3b8; 
+    --text-muted: #475569;
+    --green: #10b981;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --orange: #f97316;
+    --font: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+}
+html, body { margin: 0; padding: 0; box-sizing: border-box; width: 100vw; height: 100vh; overflow: hidden !important; font-family: var(--font); background: var(--bg); }
+* { box-sizing:border-box; }
+.painel { background: radial-gradient(circle at top left, rgba(226,179,90,0.05), transparent 50%), var(--bg); height: calc(100vh - 20px); margin: 10px; border-radius: 20px; padding: 32px; display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 150px; position: relative; z-index: 99999; gap: 20px; padding-bottom: 10px; }
+.title-container { display: flex; flex-direction: column; gap: 8px; }
+.title { font-size: 28px; font-weight: 300; color: var(--text-main); letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.title::before { content: ''; width: 4px; height: 28px; background: var(--accent); border-radius: 4px; box-shadow: 0 0 12px var(--accent-glow); }
+.subtitle { font-size: 16px; color: var(--text-sec); letter-spacing: 1px; font-weight: 500; text-transform: uppercase; margin-left: 16px; }
+.summary-cards { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; margin-bottom: 30px; position: relative; z-index: 1; }
+.card-title { font-size: 13px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-value { font-size: 24px; font-weight: 700; color: var(--text-main); font-family: var(--font); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
+.card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: var(--accent); opacity: 0.05; border-radius: 50%; filter: blur(20px); transform: translate(30%, -30%); }
+.card-title { font-size: 17px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; display:flex; align-items:center; gap:8px;}
+.card-value { font-size: 30px; font-weight: 700; color: var(--text-main); font-family: var(--font); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-indicator { font-size: 15px; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+.btn-kpi-detalhar { position: absolute; bottom: 12px; right: 12px; background: transparent; border: 1px solid var(--border); color: var(--text-sec); font-size: 10px; font-weight: 600; padding: 4px 8px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-family: var(--font); }
+.btn-kpi-detalhar:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+.ind-up { color: var(--green); background: rgba(16, 185, 129, 0.1); }
+.ind-down { color: var(--red); background: rgba(239, 68, 68, 0.1); }
+.ind-neutral { color: var(--orange); background: rgba(249, 115, 22, 0.1); }
+.table-wrapper { flex: 1; overflow-y: auto; padding-right: 12px; margin-right: -12px; position: relative; z-index: 1;}
+.table-wrapper::-webkit-scrollbar { width: 6px; }
+.table-wrapper::-webkit-scrollbar-track { background: transparent; }
+.table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.tabela { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.tabela th { position: sticky; top: 0; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(10px); color: var(--text-sec); font-size: 22px; font-weight: 500; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 16px; text-align: right; border-bottom: 1px solid var(--border); z-index: 10; }
+.tabela th:first-child { text-align: left; }
+.tabela td { background: var(--card); padding: 24px 20px; font-size: 22px; font-weight: 500; font-family: var(--font); font-variant-numeric: tabular-nums; letter-spacing: -0.5px; color: var(--text-main); text-align: right; border-top: 1px solid transparent; border-bottom: 1px solid transparent; transition: all 0.2s ease; cursor: default; white-space: nowrap; }
+.tabela td:first-child { font-family: var(--font); font-weight: 500; text-align: left; border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 1px solid transparent; }
+.tabela td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid transparent; color: var(--accent); font-weight: 700; font-size: 26px; letter-spacing: -1px; font-weight: 600; }
+.tabela tr:hover td { background: rgba(226, 179, 90, 0.05); border-color: var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: scale(1.002); }
+.tabela tr:hover td:first-child { border-left: 3px solid var(--accent); padding-left: 13px; color: var(--accent); }
+.progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #fcd34d); border-radius: 2px; }
+
+/* DROPDOWN CUSTOMIZADO */
+.dropdown-container { position: relative; display: inline-flex; align-items: center; margin-left: 15px; }
+.dropdown-btn { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font); font-size: 16px; font-weight: 600; text-transform: uppercase; cursor: pointer; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; width: 240px; outline: none; transition: 0.2s; }
+.dropdown-btn:hover { border-color: var(--accent); background: rgba(226, 179, 90, 0.05); }
+.dropdown-menu { display: none; position: absolute; top: calc(100% + 5px); right: 0; width: 280px; background: #121826; border: 1px solid var(--accent); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; flex-direction: column; }
+.dropdown-menu.show { display: flex; animation: fadeIn 0.2s ease; }
+.dropdown-search { padding: 10px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); border-top-left-radius: 8px; border-top-right-radius: 8px; }
+.dropdown-search input { width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-main); font-family: var(--font); font-size: 14px; padding: 8px 10px; outline: none; transition: 0.2s; }
+.dropdown-search input:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); }
+.dropdown-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; padding: 5px 0; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+.dropdown-list::-webkit-scrollbar { width: 6px; }
+.dropdown-list::-webkit-scrollbar-track { background: transparent; }
+.dropdown-list::-webkit-scrollbar-thumb { background: rgba(226, 179, 90, 0.4); border-radius: 4px; }
+.dropdown-list::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+.dropdown-item { padding: 10px 15px; font-size: 16px; color: var(--text-sec); cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; border-left: 2px solid transparent; text-align: left; }
+.dropdown-item:hover { background: rgba(226, 179, 90, 0.1); color: var(--text-main); border-left-col)." ---> Microsoft.AnalysisServices.AdomdClient.AdomdErrorResponseException: Query (947, 16) The syntax for 'style' is incorrect. (EVALUATE ROW("Test", 
+
+VAR _css = "<style>
+:root { 
+    --bg: #0b0f19; 
+    --card: rgba(18, 24, 38, 0.6); 
+    --border: rgba(255, 255, 255, 0.08); 
+    --accent: #e2b35a; /* Executive Gold */
+    --accent-glow: rgba(226, 179, 90, 0.15);
+    --text-main: #f1f5f9; 
+    --text-sec: #94a3b8; 
+    --text-muted: #475569;
+    --green: #10b981;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --orange: #f97316;
+    --font: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+}
+html, body { margin: 0; padding: 0; box-sizing: border-box; width: 100vw; height: 100vh; overflow: hidden !important; font-family: var(--font); background: var(--bg); }
+* { box-sizing:border-box; }
+.painel { background: radial-gradient(circle at top left, rgba(226,179,90,0.05), transparent 50%), var(--bg); height: calc(100vh - 20px); margin: 10px; border-radius: 20px; padding: 32px; display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 150px; position: relative; z-index: 99999; gap: 20px; padding-bottom: 10px; }
+.title-container { display: flex; flex-direction: column; gap: 8px; }
+.title { font-size: 28px; font-weight: 300; color: var(--text-main); letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.title::before { content: ''; width: 4px; height: 28px; background: var(--accent); border-radius: 4px; box-shadow: 0 0 12px var(--accent-glow); }
+.subtitle { font-size: 16px; color: var(--text-sec); letter-spacing: 1px; font-weight: 500; text-transform: uppercase; margin-left: 16px; }
+.summary-cards { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; margin-bottom: 30px; position: relative; z-index: 1; }
+.card-title { font-size: 13px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-value { font-size: 24px; font-weight: 700; color: var(--text-main); font-family: var(--font); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
+.card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: var(--accent); opacity: 0.05; border-radius: 50%; filter: blur(20px); transform: translate(30%, -30%); }
+.card-title { font-size: 17px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; display:flex; align-items:center; gap:8px;}
+.card-value { font-size: 30px; font-weight: 700; color: var(--text-main); font-family: var(--font); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-indicator { font-size: 15px; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+.btn-kpi-detalhar { position: absolute; bottom: 12px; right: 12px; background: transparent; border: 1px solid var(--border); color: var(--text-sec); font-size: 10px; font-weight: 600; padding: 4px 8px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-family: var(--font); }
+.btn-kpi-detalhar:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+.ind-up { color: var(--green); background: rgba(16, 185, 129, 0.1); }
+.ind-down { color: var(--red); background: rgba(239, 68, 68, 0.1); }
+.ind-neutral { color: var(--orange); background: rgba(249, 115, 22, 0.1); }
+.table-wrapper { flex: 1; overflow-y: auto; padding-right: 12px; margin-right: -12px; position: relative; z-index: 1;}
+.table-wrapper::-webkit-scrollbar { width: 6px; }
+.table-wrapper::-webkit-scrollbar-track { background: transparent; }
+.table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.tabela { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.tabela th { position: sticky; top: 0; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(10px); color: var(--text-sec); font-size: 22px; font-weight: 500; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 16px; text-align: right; border-bottom: 1px solid var(--border); z-index: 10; }
+.tabela th:first-child { text-align: left; }
+.tabela td { background: var(--card); padding: 24px 20px; font-size: 22px; font-weight: 500; font-family: var(--font); font-variant-numeric: tabular-nums; letter-spacing: -0.5px; color: var(--text-main); text-align: right; border-top: 1px solid transparent; border-bottom: 1px solid transparent; transition: all 0.2s ease; cursor: default; white-space: nowrap; }
+.tabela td:first-child { font-family: var(--font); font-weight: 500; text-align: left; border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 1px solid transparent; }
+.tabela td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid transparent; color: var(--accent); font-weight: 700; font-size: 26px; letter-spacing: -1px; font-weight: 600; }
+.tabela tr:hover td { background: rgba(226, 179, 90, 0.05); border-color: var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: scale(1.002); }
+.tabela tr:hover td:first-child { border-left: 3px solid var(--accent); padding-left: 13px; color: var(--accent); }
+.progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #fcd34d); border-radius: 2px; }
+
+/* DROPDOWN CUSTOMIZADO */
+.dropdown-container { position: relative; display: inline-flex; align-items: center; margin-left: 15px; }
+.dropdown-btn { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font); font-size: 16px; font-weight: 600; text-transform: uppercase; cursor: pointer; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; width: 240px; outline: none; transition: 0.2s; }
+.dropdown-btn:hover { border-color: var(--accent); background: rgba(226, 179, 90, 0.05); }
+.dropdown-menu { display: none; position: absolute; top: calc(100% + 5px); right: 0; width: 280px; background: #121826; border: 1px solid var(--accent); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; flex-direction: column; }
+.dropdown-menu.show { display: flex; animation: fadeIn 0.2s ease; }
+.dropdown-search { padding: 10px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); border-top-left-radius: 8px; border-top-right-radius: 8px; }
+.dropdown-search input { width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-main); font-family: var(--font); font-size: 14px; padding: 8px 10px; outline: none; transition: 0.2s; }
+.dropdown-search input:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); }
+.dropdown-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; padding: 5px 0; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+.dropdown-list::-webkit-scrollbar { width: 6px; }
+.dropdown-list::-webkit-scrollbar-track { background: transparent; }
+.dropdown-list::-webkit-scrollbar-thumb { background: rgba(226, 179, 90, 0.4); border-radius: 4px; }
+.dropdown-list::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+.dropdown-item { padding: 10px 15px; font-size: 16px; color: var(--text-sec); cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; border-left: 2px solid transparent; text-align: left; }
+.dropdown-item:hover { background: rgba(226, 179, 90, 0.1); color: var(--text-main); border-left-col).
+   em Microsoft.AnalysisServices.AdomdClient.XmlaClient.CheckForSoapFault(XmlReader reader, XmlaResult xmlaResult, Boolean throwIfError)
+   em Microsoft.AnalysisServices.AdomdClient.XmlaClient.SendMessage(Boolean endReceivalIfException, Boolean readSession, Boolean readNamespaceCompatibility)
+   em Microsoft.AnalysisServices.AdomdClient.XmlaClient.ExecuteStatement(String statement, IDictionary connectionProperties, IDictionary commandProperties, IDataParameterCollection parameters, Boolean isMdx)
+   em Microsoft.AnalysisServices.AdomdClient.AdomdConnection.XmlaClientProvider.Microsoft.AnalysisServices.AdomdClient.IExecuteProvider.ExecuteTabular(CommandBehavior behavior, ICommandContentProvider contentProvider, AdomdPropertyCollection commandProperties, IDataParameterCollection parameters)
+   em Microsoft.AnalysisServices.AdomdClient.AdomdCommand.ExecuteReader(CommandBehavior behavior)
+   em CallSite.Target(Closure , CallSite , Object )
+   --- Fim do rastreamento de pilha de exceções internas ---
+   em System.Management.Automation.ExceptionHandlingOps.CheckActionPreference(FunctionContext funcContext, Exception exception)
+   em System.Management.Automation.Interpreter.ActionCallInstruction`2.Run(InterpretedFrame frame)
+   em System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)
+   em System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)

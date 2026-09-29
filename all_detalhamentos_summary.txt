@@ -1,0 +1,104 @@
+﻿
+
+Measure : HTML_Detalhamento_Aprovados
+Snippet : CONCATENATEX( || FILTER(vw_powerbi_relatorio_aprovacao, [Honorários aprovados] > 0 && 
+          vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12)), || "<td class='td-valor' 
+          style='text-align:right; font-family:var(--font); font-variant-numeric: tabular-nums; letter-spacing:-0.5px; 
+          color:var(--accent); font-weight:600;'>" & FORMAT([Honorários aprovados], "Currency") & "</td>" &
+
+Measure : HTML_Detalhamento_Iniciais
+Snippet : CONCATENATEX(
+
+Measure : HTML_Detalhamento_Encontrados
+Snippet : CONCATENATEX( || FILTER( || "<td class='td-valor' style='text-align:right; font-family:var(--font); 
+          font-variant-numeric: tabular-nums; letter-spacing:-0.5px; color:var(--accent); font-weight:600;'>" & 
+          FORMAT(vw_powerbi_relatorio_aprovacao[TOTAL_ENCONTRADO], "Currency") & "</td>" &
+
+Measure : HTML_Detalhamento_Apresentados
+Snippet : CONCATENATEX( || FILTER( || "<td class='td-valor' style='text-align:right; font-family:var(--font); 
+          font-variant-numeric: tabular-nums; letter-spacing:-0.5px; color:var(--accent); font-weight:600;'>" & 
+          FORMAT(vw_powerbi_relatorio_aprovacao[TOTAL_APRESENTADO], "Currency") & "</td>" &
+
+Measure : HTML_Detalhamento_Perdidos
+Snippet : CONCATENATEX( || FILTER(vw_powerbi_relatorio_aprovacao, [Honorários perdidos] > 0 && 
+          vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12)), || "<td class='td-valor' 
+          style='text-align:right; font-family:var(--font); font-variant-numeric: tabular-nums; letter-spacing:-0.5px; 
+          color:var(--accent); font-weight:600;'>" & FORMAT([Honorários perdidos], "Currency") & "</td>" &
+
+Measure : HTML_Detalhamento_Restituicao
+Snippet : CONCATENATEX( || FILTER(vw_powerbi_regionais_hono_restituicao, 
+          vw_powerbi_regionais_hono_restituicao[VALOR_FINAL] > 0), || "<td class='td-valor' style='text-align:right; 
+          font-family:consolas,monospace; color:var(--accent); font-weight:700;'>" & 
+          FORMAT(vw_powerbi_regionais_hono_restituicao[VALOR_FINAL] + 0, "Currency") & "</td>" &
+
+Measure : HTML_Detalhamento_Nao_Aprovados
+Snippet : CONCATENATEX( || FILTER(vw_powerbi_relatorio_aprovacao, [Honorários não aprovados] > 0 && 
+          vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12)), || "<td class='td-valor' 
+          style='text-align:right; font-family:var(--font); font-variant-numeric: tabular-nums; letter-spacing:-0.5px; 
+          color:var(--accent); font-weight:600;'>" & FORMAT([Honorários não aprovados], "Currency") & "</td>" &
+
+Measure : HTML_Detalhamento_Credito_Sem_Honorarios
+Snippet : CONCATENATEX( || FILTER(vw_powerbi_regionais_hono_encontrados, 
+          vw_powerbi_regionais_hono_encontrados[sem_honorario] > 0), || "<td class='td-valor' style='text-align:right; 
+          font-family:consolas,monospace; color:var(--accent); font-weight:700;'>" & 
+          FORMAT(vw_powerbi_regionais_hono_encontrados[sem_honorario] + 0, "Currency") & "</td>" &
+
+Measure : HTML_Detalhamento_Caixa
+Snippet : FILTER( || CONCATENATEX( || CONCATENATEX( || FILTER(SUMMARIZE(_tabelaTratada, metas[bandeira]), NOT 
+          ISBLANK(metas[bandeira]) && metas[bandeira] <> ""), || CONCATENATEX( || FILTER(SUMMARIZE(_tabelaTratada, 
+          metas[descricao_cat]), NOT ISBLANK(metas[descricao_cat]) && metas[descricao_cat] <> ""), || CONCATENATEX( || 
+          FILTER(SUMMARIZE(_tabelaTratada, [Regional]), NOT ISBLANK([Regional]) && [Regional] <> ""), || ""<td 
+          class='td-valor' style='text-align:right; font-weight:bold; color:var(--green);' data-val='"" + valStr + 
+          ""'>R$ "" + valFormatado + ""</td>"" + || var valStr = 
+          rows[i].querySelector('.td-valor').getAttribute('data-val');
+
+Measure : HTML_Detalhamento_Reunioes
+Snippet : FILTER(vw_powerbi_agendas_rt, FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM") = _mesFiltro) || RETURN 
+          MINX(FILTER(CALCULATETABLE(vw_powerbi_agendas_rt), FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM-dd") = _d), 
+          vw_powerbi_agendas_rt[HORA]), || RETURN SUMX(FILTER(CALCULATETABLE(vw_powerbi_agendas_rt), 
+          FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM-dd") = _d), vw_powerbi_agendas_rt[Honorarios]) || CONCATENATEX(
+
+Measure : HTML_Detalhamento_Acordo_Socios
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_Contabilidade
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_Holding
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_MA
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_MercadoLivre
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_ReducaoEnergia
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_Reforma
+Snippet : "REGIONAL_DEFAULT", MAXX(FILTER(vw_powerbi_journeys_corporate, vw_powerbi_journeys_corporate[JOB] = 
+          vw_powerbi_jobs_produto_area[JOB]), vw_powerbi_journeys_corporate[REGIONAL_DEFAULT]) || CONCATENATEX( || 
+          CONCATENATEX(
+
+Measure : HTML_Detalhamento_Renegociacao_Dividas
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_Supply
+Snippet : "REGIONAL_DEFAULT", MAXX(FILTER(vw_powerbi_journeys_corporate, vw_powerbi_journeys_corporate[JOB] = 
+          vw_powerbi_jobs_produto_area[JOB]), vw_powerbi_journeys_corporate[REGIONAL_DEFAULT]) || CONCATENATEX( || 
+          CONCATENATEX(
+
+Measure : HTML_Detalhamento_Transacao
+Snippet : "REGIONAL_DEFAULT", MAXX(FILTER(vw_powerbi_journeys_corporate, vw_powerbi_journeys_corporate[JOB] = 
+          vw_powerbi_jobs_produto_area[JOB]), vw_powerbi_journeys_corporate[REGIONAL_DEFAULT]) || CONCATENATEX( || 
+          CONCATENATEX(
+
+Measure : HTML_Detalhamento_Valuation
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+Measure : HTML_Detalhamento_VT
+Snippet : CONCATENATEX( || CONCATENATEX(
+
+
+

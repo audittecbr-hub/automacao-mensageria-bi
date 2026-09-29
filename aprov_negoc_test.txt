@@ -1,0 +1,10 @@
+﻿
+
+[Total_Aprov_Negoc] : 
+[Iniciais]          : 
+[Compensacao]       : 
+[Restituicao]       : 
+[Ajuizamento]       : 
+
+
+

@@ -1,0 +1,14 @@
+﻿Regional: 'Regional Sul' | Ant: 'NEGOCIAÇÃO' | Atual: 'COMPENSAÇÃO' | Hon_Total: 0
+Regional: 'Regional Sul' | Ant: 'NEGOCIAÇÃO' | Atual: 'RETIFICAÇÃO' | Hon_Total: 10521938.8738
+Regional: 'Regional Sul' | Ant: 'NEGOCIAÇÃO' | Atual: 'AJUÍZAMENTO' | Hon_Total: 0
+Regional: 'Regional NNCO' | Ant: 'NEGOCIAÇÃO' | Atual: 'COMPENSAÇÃO' | Hon_Total: 0
+Regional: 'Regional NNCO' | Ant: 'NEGOCIAÇÃO' | Atual: 'RETIFICAÇÃO' | Hon_Total: 2655128.7423
+Regional: 'Regional NNCO' | Ant: 'NEGOCIAÇÃO' | Atual: 'AJUÍZAMENTO' | Hon_Total: 0
+Regional: 'Regional Sudeste 2' | Ant: 'NEGOCIAÇÃO' | Atual: 'COMPENSAÇÃO' | Hon_Total: 0
+Regional: 'Regional Sudeste 2' | Ant: 'NEGOCIAÇÃO' | Atual: 'IMPLANTAÇÃO' | Hon_Total: 0
+Regional: 'Regional Sudeste 2' | Ant: 'NEGOCIAÇÃO' | Atual: 'RETIFICAÇÃO' | Hon_Total: 2179605.0695
+Regional: 'Regional Sudeste 2' | Ant: 'NEGOCIAÇÃO' | Atual: 'AJUÍZAMENTO' | Hon_Total: 0
+Regional: 'Regional Sudeste' | Ant: 'NEGOCIAÇÃO' | Atual: 'COMPENSAÇÃO' | Hon_Total: 0
+Regional: 'Regional Sudeste' | Ant: 'NEGOCIAÇÃO' | Atual: 'IMPLANTAÇÃO' | Hon_Total: 35000
+Regional: 'Regional Sudeste' | Ant: 'NEGOCIAÇÃO' | Atual: 'RETIFICAÇÃO' | Hon_Total: 1535654.7634
+Regional: 'Regional Sudeste' | Ant: 'NEGOCIAÇÃO' | Atual: 'AJUÍZAMENTO' | Hon_Total: 203545.0362

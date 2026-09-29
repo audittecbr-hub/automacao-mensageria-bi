@@ -1,0 +1,173 @@
+table Metas
+	lineageTag: 1d468c7f-281c-4992-885e-aeaae7077812
+
+	measure 'Realizado GS' = ```
+			
+			    [Comercial_Total] + [Operacional_Total]+ [Valor_ADM] + [Valor_InterCompany] + [Valor_OutrasReceitas]+[total_repasse]+[Valor_Sem_Categoria]
+			    
+			    
+			```
+		lineageTag: a322a030-6d96-4783-b925-d7a6aa2976c9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column id
+		dataType: int64
+		formatString: 0
+		lineageTag: b177896c-62d9-4527-bcbe-d1ecc59b2d48
+		summarizeBy: sum
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigo_lancamento_omie
+		dataType: int64
+		formatString: 0
+		lineageTag: 27c7c359-1668-4a05-9b34-6427b730a1cb
+		summarizeBy: sum
+		sourceColumn: codigo_lancamento_omie
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_emissao
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 79e5f3e4-e4ce-45ee-84df-97420086d001
+		summarizeBy: none
+		sourceColumn: data_emissao
+
+		variation Variation
+			isDefault
+			relationship: 62290ccf-ef91-4325-a854-9097acbb67c2
+			defaultHierarchy: LocalDateTable_381c87e8-3e2c-4f32-89fa-9e2d41fd0e16.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column data_lancamento
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 3c7fa81e-99f9-409e-acb6-96fc02d3bac5
+		summarizeBy: none
+		sourceColumn: data_lancamento
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column data_vencimento
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6fb05c2b-0ebf-4e88-ab11-c30edc481c22
+		summarizeBy: none
+		sourceColumn: data_vencimento
+
+		variation Variation
+			isDefault
+			relationship: 8f71a724-0ee2-4a19-b567-d3cdfb3aef93
+			defaultHierarchy: LocalDateTable_f0fe3309-c736-43b4-b2cc-c8a5189685c4.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column bandeira
+		dataType: string
+		lineageTag: dbb5ecbb-9578-496a-9df3-c035ad16d920
+		summarizeBy: none
+		sourceColumn: bandeira
+
+		annotation SummarizationSetBy = Automatic
+
+	column cnpj_cpf
+		dataType: string
+		lineageTag: 1ac57dde-4249-4818-b890-8ab2e1d27cbf
+		summarizeBy: none
+		sourceColumn: cnpj_cpf
+
+		annotation SummarizationSetBy = Automatic
+
+	column razao_social
+		dataType: string
+		lineageTag: 90bfbc4d-bce2-49ae-a2b9-d71a18158739
+		summarizeBy: none
+		sourceColumn: razao_social
+
+		annotation SummarizationSetBy = Automatic
+
+	column descricao_cat
+		dataType: string
+		lineageTag: 12151845-e775-451e-8a7d-26e12e4964aa
+		summarizeBy: none
+		sourceColumn: descricao_cat
+
+		annotation SummarizationSetBy = Automatic
+
+	column percentual_categoria
+		dataType: double
+		lineageTag: 9bf56018-9d48-4c88-bb76-77a8a48b08e7
+		summarizeBy: sum
+		sourceColumn: percentual_categoria
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ccoddep
+		dataType: string
+		lineageTag: 3748c0d9-6a5c-4190-8ad2-c36b109c5695
+		summarizeBy: none
+		sourceColumn: ccoddep
+
+		annotation SummarizationSetBy = Automatic
+
+	column percentual_departamento
+		dataType: double
+		lineageTag: 295f1d71-bff6-4398-a3ea-f1f96c1ccb9e
+		summarizeBy: sum
+		sourceColumn: percentual_departamento
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column descricao_dept
+		dataType: string
+		lineageTag: 3ff546b9-5cb1-4903-a54e-cdeb92816aa5
+		summarizeBy: none
+		sourceColumn: descricao_dept
+
+		annotation SummarizationSetBy = Automatic
+
+	column valor_conta
+		dataType: double
+		lineageTag: 665410ac-a1d4-43aa-8862-cbf11df5cd40
+		summarizeBy: sum
+		sourceColumn: valor_conta
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column categoria
+		dataType: string
+		lineageTag: d3cc2c42-1eed-4422-9e9b-81335d213f41
+		summarizeBy: none
+		sourceColumn: categoria
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Metas = m
+		mode: import
+		source =
+				let
+				    Fonte = PostgreSQL.Database("aws-1-sa-east-1.pooler.supabase.com", "postgres"),
+				    public_metas = Fonte{[Schema="public",Item="metas"]}[Data]
+				in
+				    public_metas
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

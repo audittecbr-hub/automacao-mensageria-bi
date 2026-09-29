@@ -1,0 +1,111 @@
+﻿
+vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] vw_powerbi_relatorio_aprovacao[AREA_ATUAL] [Cnt]      [Hon_Aprov]
+--------------------------------------------- ------------------------------------------ -----      -----------
+DISTRATO                                      FIM                                          768       1809474,57
+PROCURAÇÃO ELETRÔNICA                         FIM                                         1916           201343
+OPERAÇÃO                                      FIM                                         3911       1215522,69
+CHECKLIST                                     FIM                                         8972         66214484
+REUNIÃO TÉCNICA                               FIM                                        10752        457557,91
+ENTREGA                                       FIM                                         1530        158412,06
+STAND BY OPERAÇÃO                             FIM                                           23               14
+RETIFICAÇÃO                                   FIM                                           34                0
+CADASTRO                                      FIM                                         2003        666007,39
+REVISÃO                                       FIM                                          344           105000
+NEGOCIAÇÃO                                    FIM                                          826           358046
+QUALIDADE                                     FIM                                          154           111000
+COMPENSAÇÃO                                   FIM                                           95               30
+PRAZO DE VALIDAÇÃO                            FIM                                           18                0
+AJUÍZAMENTO                                   FIM                                            5                0
+FATURADO                                      FIM                                            9            13000
+FINANCEIRO                                    FIM                                            8            10000
+NÃO FATURADO - COMERCIAL                      FIM                                            2                0
+IMPLANTAÇÃO                                   FIM                                           12             1750
+PREDOT                                        FIM                                           11                0
+PLANILHAMENTO                                 FIM                                            1                0
+REVISTA                                       FIM                                           77            15000
+FUNDO PERDIDO                                 FIM                                           62          8030,32
+INTIMAÇÃO                                     FIM                                            2                0
+NÃO FATURADO                                  FIM                                            2                0
+MATERIAL                                      FIM                                            3                0
+VALIDAÇÃO SEFAZ                               FIM                                            2                0
+TREINAMENTO                                   FIM                                            9            24000
+OPERAÇÃO                                      REUNIÃO TÉCNICA                             6176      629219,8396
+CHECKLIST                                     REUNIÃO TÉCNICA                                7                0
+REVISÃO                                       REUNIÃO TÉCNICA                             1892         11833,08
+NEGOCIAÇÃO                                    REUNIÃO TÉCNICA                                1                0
+PRAZO DE VALIDAÇÃO                            REUNIÃO TÉCNICA                                1                0
+FIM                                           REUNIÃO TÉCNICA                                1                0
+AUDITORIA TÉCNICA                             REUNIÃO TÉCNICA                                2                0
+PROCURAÇÃO ELETRÔNICA                         OPERAÇÃO                                     123         39193,77
+CHECKLIST                                     OPERAÇÃO                                    4315 864477,830000001
+REUNIÃO TÉCNICA                               OPERAÇÃO                                       2                0
+CADASTRO                                      OPERAÇÃO                                      18        230075,74
+REVISÃO                                       OPERAÇÃO                                       3                3
+QUALIDADE                                     OPERAÇÃO                                      12                0
+COMPENSAÇÃO                                   OPERAÇÃO                                       1                0
+PRAZO DE VALIDAÇÃO                            OPERAÇÃO                                       1                0
+FIM                                           OPERAÇÃO                                       4            88307
+MANIPULAÇÃO                                   OPERAÇÃO                                      27        153247,82
+PLANILHAMENTO                                 OPERAÇÃO                                      24            86000
+STAND BY                                      OPERAÇÃO                                       1                0
+OPERAÇÃO                                      NEGOCIAÇÃO                                    20                0
+REUNIÃO TÉCNICA                               NEGOCIAÇÃO                                  1279      136367,0268
+ENTREGA                                       NEGOCIAÇÃO                                     4                0
+STAND BY OPERAÇÃO                             NEGOCIAÇÃO                                     2                0
+RETIFICAÇÃO                                   NEGOCIAÇÃO                                    39      1288383,905
+CADASTRO                                      NEGOCIAÇÃO                                     4                0
+QUALIDADE                                     NEGOCIAÇÃO                                     6       882138,279
+PRAZO DE VALIDAÇÃO                            NEGOCIAÇÃO                                   106        25463,658
+FIM                                           NEGOCIAÇÃO                                     9                0
+ATA DE REUNIÃO                                NEGOCIAÇÃO                                    20                0
+FATURADO                                      NEGOCIAÇÃO                                     1                0
+OPERAÇÃO                                      COMPENSAÇÃO                                    1                0
+RETIFICAÇÃO                                   COMPENSAÇÃO                                  652   19642432,82561
+NEGOCIAÇÃO                                    COMPENSAÇÃO                                   21                0
+PRAZO DE VALIDAÇÃO                            COMPENSAÇÃO                                    1                0
+FIM                                           COMPENSAÇÃO                                    2                0
+PROCURAÇÃO ELETRÔNICA                         CHECKLIST                                    991        869146,28
+OPERAÇÃO                                      CHECKLIST                                      7            30004
+CADASTRO                                      CHECKLIST                                    177       3413819,79
+MANIPULAÇÃO                                   CHECKLIST                                      6            63500
+CHECKLIST                                     PROCURAÇÃO ELETRÔNICA                        366           289335
+REUNIÃO TÉCNICA                               PROCURAÇÃO ELETRÔNICA                         19               60
+CADASTRO                                      PROCURAÇÃO ELETRÔNICA                       9003         466963,3
+OPERAÇÃO                                      IMPLANTAÇÃO                                   61       1919848,22
+REUNIÃO TÉCNICA                               IMPLANTAÇÃO                                   11           252520
+CADASTRO                                      IMPLANTAÇÃO                                   47        3254213,5
+NEGOCIAÇÃO                                    IMPLANTAÇÃO                                    4            35000
+REUNIÃO TÉCNICA                               QUALIDADE                                      8            29500
+RETIFICAÇÃO                                   QUALIDADE                                     82     4331422,6798
+NEGOCIAÇÃO                                    QUALIDADE                                     61            46000
+NEGOCIAÇÃO                                    JURÍDICO                                      17                0
+REUNIÃO TÉCNICA                               ENTREGA                                      130                0
+REVISÃO                                       ENTREGA                                        2                0
+OPERAÇÃO                                      RETIFICAÇÃO                                    3                0
+REUNIÃO TÉCNICA                               RETIFICAÇÃO                                   45     4233552,0791
+NEGOCIAÇÃO                                    RETIFICAÇÃO                                  132     16892327,449
+QUALIDADE                                     RETIFICAÇÃO                                   13                0
+COMPENSAÇÃO                                   RETIFICAÇÃO                                    6                0
+PRAZO DE VALIDAÇÃO                            RETIFICAÇÃO                                    2        186908,87
+REUNIÃO TÉCNICA                               AJUÍZAMENTO                                    4                0
+CADASTRO                                      AJUÍZAMENTO                                    3                0
+NEGOCIAÇÃO                                    AJUÍZAMENTO                                   10      203545,0362
+OPERAÇÃO                                      REVISÃO                                       98               24
+OPERAÇÃO                                      PRAZO DE VALIDAÇÃO                             6           261000
+REUNIÃO TÉCNICA                               PRAZO DE VALIDAÇÃO                            22               16
+RETIFICAÇÃO                                   PRAZO DE VALIDAÇÃO                             1       79151,2776
+NEGOCIAÇÃO                                    PRAZO DE VALIDAÇÃO                            44        163623,43
+AUDITORIA TÉCNICA                             PRAZO DE VALIDAÇÃO                             4                0
+NEGOCIAÇÃO                                    FATURADO                                       6             5722
+QUALIDADE                                     FATURADO                                       6             5000
+NÃO FATURADO                                  FATURADO                                       1                0
+PROCURAÇÃO ELETRÔNICA                         CADASTRO                                      20                0
+CHECKLIST                                     MANIPULAÇÃO                                   42        297247,82
+PROCURAÇÃO ELETRÔNICA                         STAND BY OPERAÇÃO                              6                0
+OPERAÇÃO                                      STAND BY OPERAÇÃO                             41             8000
+CHECKLIST                                     STAND BY OPERAÇÃO                             65                0
+REUNIÃO TÉCNICA                               STAND BY OPERAÇÃO                              8                8
+CADASTRO                                      STAND BY                                       1                0
+REUNIÃO TÉCNICA                               CONTENCIOSO                                    3                0
+
+

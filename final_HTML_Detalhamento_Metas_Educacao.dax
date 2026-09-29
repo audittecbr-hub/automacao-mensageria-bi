@@ -1,0 +1,277 @@
+
+// ============================================================
+// CSS - ESTÉTICA EXECUTIVA "ULTIMATE PRESIDENCY"
+// ============================================================
+VAR _css = "<style> 
+:root { --bg:#080b10; --card:rgba(14,18,24,0.96); --border:rgba(201,168,76,0.10); --border-s:rgba(255,255,255,0.03); --bronze:#c9a84c; --bronze-l:#d4b96a; --gold:#e8c965; --t1:#ffffff; --t2:#a8b2bd; --t3:#5a6370; --row-hover:rgba(201,168,76,0.08); --font:'Segoe UI',system-ui,sans-serif; } 
+html, body { margin:0; padding:0; width:100vw; height:100vh; background:var(--bg); font-family:var(--font); color:var(--t1); overflow:hidden; } 
+* { box-sizing:border-box; } 
+.painel { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; display:flex; flex-direction:column; height:calc(100vh - 20px); margin:10px; box-shadow:0 8px 40px rgba(0,0,0,0.55); } 
+.cabecalho { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-shrink:0; border-bottom:1px solid var(--border); padding-bottom:15px; } 
+.cabecalho-esquerda { display:flex; align-items:center; gap:16px; }
+.btn-copiar { display:flex; align-items:center; gap:6px; background:rgba(201,168,76,0.08); color:var(--bronze-l); border:1px solid var(--border); padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-family:var(--font); transition:all 0.2s; text-transform:uppercase; font-size:11px; letter-spacing:1px; white-space:nowrap; }
+.btn-copiar:hover { background:rgba(201,168,76,0.15); border-color:var(--bronze); color:#fff; box-shadow:0 0 10px rgba(201,168,76,0.2); }
+.titulo { font-size:22px; font-weight:700; color:var(--bronze-l); letter-spacing:2px; text-transform:uppercase; display:flex; align-items:center; gap:10px;} 
+.titulo::before { content:''; display:inline-block; width:6px; height:24px; background:linear-gradient(180deg, var(--bronze), var(--gold)); border-radius:4px; }
+.controles { display:flex; align-items:center; gap:12px; }
+.busca-global { background:rgba(201,168,76,0.05); border:1px solid var(--border); border-radius:8px; color:#fff; font-family:var(--font); font-size:12px; padding:10px 16px; outline:none; transition:all 0.3s; width:220px; } 
+.busca-global:focus { border-color:var(--bronze); background:rgba(201,168,76,0.08); width:280px; } 
+.table-wrapper { flex:1 1 auto; overflow-y:auto; padding-right:8px; position:relative; } 
+.table-wrapper::-webkit-scrollbar { width:6px; } 
+.table-wrapper::-webkit-scrollbar-track { background:transparent; } 
+.table-wrapper::-webkit-scrollbar-thumb { background:rgba(201,168,76,0.35); border-radius:4px; } 
+.tabela { width:100%; border-collapse:collapse; } 
+.tabela th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--bronze); padding:12px 14px; text-align:left; background:#0e1218; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:5; box-shadow:0 1px 0 var(--border); } 
+.tabela td { font-size:12px; padding:12px 14px; color:#ffffff; border-bottom:1px solid var(--border-s); transition:background 0.2s; } 
+.tabela tr:hover td { background:var(--row-hover); } 
+.tabela tr:hover td:first-child { border-left:3px solid var(--bronze); padding-left:11px; color:var(--bronze-l); } 
+.col-filter { background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:4px; color:#ffffff; font-family:var(--font); font-size:10px; padding:6px 8px; width:100%; outline:none; margin-top:6px; font-weight:normal; box-sizing:border-box; transition: border-color 0.2s; }
+.col-filter:focus { border-color:var(--bronze); background:rgba(201,168,76,0.08); }
+.col-filter::placeholder { color:var(--t3); }
+.col-filter option { background:var(--card); color:var(--t1); }
+.tabela tfoot td { background:#0e1218; border-top:2px solid var(--bronze); border-bottom:none; position:sticky; bottom:-1px; z-index:5; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
+.count-destaque { font-size:16px; font-weight:900; color:#fff; background:rgba(201,168,76,0.2); padding:4px 10px; border-radius:6px; margin-left:8px; border:1px solid var(--bronze); min-width: 140px; display: inline-block; text-align: center; }
+</style>"
+
+// ============================================================
+// JS - FUNÇÕES DE FILTRO E CÓPIA
+// ============================================================
+VAR _js = "<script> 
+function parseMoneyBr(str) {
+    if(!str || str === '-') return 0;
+    var val = str.split('R$').join('').split(' ').join('').split('.').join('').split(',').join('.');
+    var num = parseFloat(val);
+    return isNaN(num) ? 0 : num;
+}
+
+function formatMoneyBr(num) {
+    return num.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+}
+
+function filtrarTabela(){ 
+    var qG=document.getElementById('buscaGlobal').value.toLowerCase(); 
+    var qBand=document.getElementById('buscaColBand').value.toLowerCase(); 
+    var qCat=document.getElementById('buscaColCat').value.toLowerCase(); 
+    var qRazao=document.getElementById('buscaColRazao').value.toLowerCase(); 
+    
+    var rows=document.querySelectorAll('.linha-detalhe'); 
+    
+    var sumTotal = 0;
+    var sumRepasse = 0;
+    var sumLiquido = 0;
+
+    var temFiltro = (qG !== '' || qBand !== '' || qCat !== '' || qRazao !== '');
+
+    for(var i=0;i<rows.length;i++){ 
+        var tBand=rows[i].querySelector('.td-bandeira').textContent.toLowerCase(); 
+        var tCat=rows[i].querySelector('.td-cat').textContent.toLowerCase(); 
+        var tRazao=rows[i].querySelector('.td-razao').textContent.toLowerCase(); 
+        
+        var matchG=(qG==='' || tBand.indexOf(qG)>-1 || tCat.indexOf(qG)>-1 || tRazao.indexOf(qG)>-1); 
+        var matchBand=(qBand==='' || tBand === qBand);
+        var matchCat=(qCat==='' || tCat === qCat);
+        var matchRazao=(qRazao==='' || tRazao.indexOf(qRazao)>-1); 
+        
+        if(matchG && matchBand && matchCat && matchRazao){ 
+            rows[i].style.display=''; 
+            
+            var vTotal = rows[i].querySelector('.td-total').textContent;
+            var vRepasse = rows[i].querySelector('.td-repasse').textContent;
+            var vLiquido = rows[i].querySelector('.td-liquido').textContent;
+            
+            sumTotal += parseMoneyBr(vTotal);
+            sumRepasse += parseMoneyBr(vRepasse);
+            sumLiquido += parseMoneyBr(vLiquido);
+            
+        } else { 
+            rows[i].style.display='none'; 
+        } 
+    } 
+    
+    if(temFiltro) {
+        document.getElementById('sumTotal').textContent = formatMoneyBr(sumTotal); 
+        document.getElementById('sumRepasse').textContent = formatMoneyBr(sumRepasse); 
+        document.getElementById('sumLiquido').textContent = formatMoneyBr(sumLiquido); 
+    } else {
+        document.getElementById('sumTotal').textContent = document.getElementById('sumTotal').getAttribute('data-dax');
+        document.getElementById('sumRepasse').textContent = document.getElementById('sumRepasse').getAttribute('data-dax');
+        document.getElementById('sumLiquido').textContent = document.getElementById('sumLiquido').getAttribute('data-dax');
+    }
+} 
+setTimeout(filtrarTabela, 100); 
+
+function copiarTabela() {
+    var LF = String.fromCharCode(10);
+    var TAB = String.fromCharCode(9);
+    var btn = document.getElementById('btnCopiar');
+    var originalText = btn.innerHTML;
+    btn.innerHTML = '&#8982; Copiando...';
+    var textToCopy = '';
+    var ths = document.querySelectorAll('.tabela thead th');
+    for(var i=0; i<ths.length; i++) {
+        var span = ths[i].querySelector('span');
+        var thText = span ? span.textContent.trim() : ths[i].textContent.trim();
+        textToCopy += thText + (i === ths.length - 1 ? LF : TAB);
+    }
+    var rows = document.querySelectorAll('.linha-detalhe');
+    var copiedCount = 0;
+    for(var i=0; i<rows.length; i++) {
+        if(rows[i].style.display !== 'none') {
+            var tds = rows[i].querySelectorAll('td');
+            for(var j=0; j<tds.length; j++) {
+                textToCopy += tds[j].textContent.trim() + (j === tds.length - 1 ? LF : TAB);
+            }
+            copiedCount++;
+        }
+    }
+    
+    var tfoot = document.querySelector('.tabela tfoot tr');
+    if(tfoot) {
+        var fTds = tfoot.querySelectorAll('td');
+        for(var k=0; k<fTds.length; k++) {
+            var colspan = fTds[k].getAttribute('colspan');
+            var cols = colspan ? parseInt(colspan) : 1;
+            var fText = fTds[k].textContent.trim();
+            for(var c=0; c<cols; c++) {
+                textToCopy += (c===0 ? fText : '') + (k === fTds.length - 1 && c === cols - 1 ? LF : TAB);
+            }
+        }
+    }
+
+    try {
+        var textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        var successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        if (successful) {
+            btn.innerHTML = '&#10004; Copiado (' + copiedCount + ' linhas)';
+            btn.style.borderColor = 'var(--green)';
+            btn.style.color = 'var(--green)';
+            setTimeout(function() {
+                btn.innerHTML = originalText;
+                btn.style.borderColor = 'var(--border)';
+                btn.style.color = 'var(--bronze-l)';
+            }, 3000);
+        } else {
+            throw new Error('Fallback failed');
+        }
+    } catch(err) {
+        btn.innerHTML = '&#10060; Erro';
+        console.error('Erro:', err);
+        setTimeout(function() { btn.innerHTML = originalText; }, 3000);
+    }
+} 
+</script>"
+
+// ============================================================
+// DAX - CONSTRUÇÃO DOS DADOS E TOTAIS GERAIS
+// ============================================================
+
+VAR _TotalArea = [Valor_Educacao]
+VAR _TotalRepasse = [Valor_Educacao_Repasse]
+VAR _TotalLiquido = _TotalArea - _TotalRepasse
+
+VAR _tabelaRaw = 
+    ADDCOLUMNS(
+        SUMMARIZE(
+            FILTER(Metas, Metas[categoria] IN { "EDUCAÇÃO", "EDUCACAO" }),
+            Metas[codigo_lancamento_omie],
+            Metas[bandeira],
+            Metas[descricao_cat],
+            Metas[razao_social],
+            Metas[data_emissao],
+            Calendario[Date]
+        ),
+        "V_Total", [Valor_Educacao],
+        "V_Repasse", [Valor_Educacao_Repasse]
+    )
+
+VAR _tabelaCalc = 
+    ADDCOLUMNS(
+        FILTER(_tabelaRaw, COALESCE([V_Total], 0) <> 0 || COALESCE([V_Repasse], 0) <> 0),
+        "V_Liquido", COALESCE([V_Total], 0) - COALESCE([V_Repasse], 0)
+    )
+
+VAR _opcoesBand = 
+    CONCATENATEX(
+        SUMMARIZE(_tabelaCalc, [bandeira]),
+        "<option value='" & LOWER([bandeira]) & "'>" & [bandeira] & "</option>",
+        "",
+        [bandeira], ASC
+    )
+
+VAR _opcoesCat = 
+    CONCATENATEX(
+        SUMMARIZE(_tabelaCalc, [descricao_cat]),
+        "<option value='" & LOWER([descricao_cat]) & "'>" & [descricao_cat] & "</option>",
+        "",
+        [descricao_cat], ASC
+    )
+
+VAR _linhas = 
+    CONCATENATEX(
+        TOPN(1500, _tabelaCalc, [Date], DESC, [data_emissao], DESC),
+        "<tr class='linha-detalhe'> " &
+            "<td class='td-bandeira'>" & COALESCE([bandeira], "-") & "</td>" &
+            "<td class='td-cat'>" & COALESCE([descricao_cat], "-") & "</td>" &
+            "<td class='td-razao'>" & COALESCE([razao_social], "-") & "</td>" &
+            "<td style='text-align:center;'>" & IF(ISBLANK([data_emissao]), "-", FORMAT([data_emissao], "dd/MM/yyyy")) & "</td>" &
+            "<td style='text-align:center;'>" & IF(ISBLANK([Date]), "-", FORMAT([Date], "dd/MM/yyyy")) & "</td>" &
+            "<td class='td-total' style='text-align:right; white-space:nowrap;'>" & FORMAT([V_Total], "R$ #,##0.00") & "</td>" &
+            "<td class='td-repasse' style='text-align:right; white-space:nowrap;'>" & FORMAT([V_Repasse], "R$ #,##0.00") & "</td>" &
+            "<td class='td-liquido' style='text-align:right; font-weight:bold; color:var(--bronze-l); white-space:nowrap;'>" & FORMAT([V_Liquido], "R$ #,##0.00") & "</td>" &
+        "</tr>",
+        "",
+        [Date], DESC
+    )
+
+VAR _htmlTop = "
+    <div class='painel'>
+        <div class='cabecalho'>
+            <div class='cabecalho-esquerda'>
+                <div class='titulo'>DETALHAMENTO EDUCAÇÃO METAS</div>
+            </div>
+            <div class='controles'>
+                <input class='busca-global' id='buscaGlobal' type='text' placeholder='Busca global (Empresa, Cliente)...' oninput='filtrarTabela()'>
+                <button id='btnCopiar' class='btn-copiar' onclick='copiarTabela()'>&#128203; Copiar Tabela</button>
+            </div>
+        </div>
+        <div class='table-wrapper'>
+            <table class='tabela'>
+                <thead>
+                    <tr>
+                        <th><div style='display:flex;flex-direction:column;'><span>Empresa (Bandeira)</span><select id='buscaColBand' class='col-filter' style='cursor:pointer;' onchange='filtrarTabela()'><option value=''>Todas</option>" & _opcoesBand & "</select></div></th>
+                        <th><div style='display:flex;flex-direction:column;'><span>Categoria</span><select id='buscaColCat' class='col-filter' style='cursor:pointer;' onchange='filtrarTabela()'><option value=''>Todas</option>" & _opcoesCat & "</select></div></th>
+                        <th><div style='display:flex;flex-direction:column;'><span>Razão Social</span><input type='text' id='buscaColRazao' class='col-filter' placeholder='Filtrar...' oninput='filtrarTabela()'></div></th>
+                        <th style='vertical-align:top;padding-top:16px;text-align:center;'>Emissão</th>
+                        <th style='vertical-align:top;padding-top:16px;text-align:center;'>Pagamento</th>
+                        <th style='vertical-align:top;padding-top:16px;text-align:right;'>Valor Total</th>
+                        <th style='vertical-align:top;padding-top:16px;text-align:right;'>Repasse</th>
+                        <th style='vertical-align:top;padding-top:16px;text-align:right;'>Valor Líquido</th>
+                    </tr>
+                </thead>
+                <tbody>"
+
+VAR _htmlBottom = "
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan='5' style='text-align:right; font-weight:bold; color:var(--t2); padding-right:14px; text-transform:uppercase;'>TOTAIS DA TABELA</td>
+                        <td id='sumTotal' data-dax='" & FORMAT(_TotalArea, "R$ #,##0.00") & "' style='text-align:right; font-weight:bold; color:var(--bronze-l); font-size:13px; white-space:nowrap;'>" & FORMAT(_TotalArea, "R$ #,##0.00") & "</td>
+                        <td id='sumRepasse' data-dax='" & FORMAT(_TotalRepasse, "R$ #,##0.00") & "' style='text-align:right; font-weight:bold; color:var(--bronze-l); font-size:13px; white-space:nowrap;'>" & FORMAT(_TotalRepasse, "R$ #,##0.00") & "</td>
+                        <td id='sumLiquido' data-dax='" & FORMAT(_TotalLiquido, "R$ #,##0.00") & "' style='text-align:right; font-weight:bold; color:var(--bronze-l); font-size:13px; white-space:nowrap; border-bottom:2px solid var(--bronze);'>" & FORMAT(_TotalLiquido, "R$ #,##0.00") & "</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+"
+
+VAR _linhasHtml = IF(ISBLANK(_linhas), "<tr><td colspan='8' style='text-align:center; padding: 40px; color: var(--t3);'>Nenhum registro encontrado.</td></tr>", _linhas)
+
+RETURN "<html><head><meta charset='UTF-8'>" & _css & "</head><body>" & _htmlTop & _linhasHtml & _htmlBottom & _js & "</body></html>"

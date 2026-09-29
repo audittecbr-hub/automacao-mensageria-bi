@@ -1,0 +1,11 @@
+﻿
+
+[Encontrados]   : 1125464017,12568
+[Apresentados]  : 299858858,411438
+[Aprovados]     : 132783274,44571
+[Negociacao]    : 146047818,742603
+[Perdidos]      : 68355616,635265
+[Nao_Aprovados] : 2462642,2038
+
+
+

@@ -1,0 +1,624 @@
+﻿VAR vBase = 
+			    FILTER('public metas_bruto', 
+			        NOT ISBLANK('public metas_bruto'[cnpj_cpf]) 
+			        && 'public metas_bruto'[cnpj_cpf] <> ""
+			        && 'public metas_bruto'[data_lancamento] >= DATE(2026, 8, 3)
+			    )
+			
+			VAR vRecebido = 
+			    ADDCOLUMNS(
+			        vBase,
+			        "NOME_UNIDADE_VAL", BLANK(),
+			        "JOB_VAL", 'public metas_bruto'[numero_contrato],
+			        "DATA_CADASTRO_VAL", BLANK()
+			    )
+			
+			VAR vJsonRows =
+			    CONCATENATEX(
+			        vRecebido,
+			        "{" &
+			            "id:'" & [codigo_lancamento_omie] & "'" &
+			            ",job:'" & COALESCE([JOB_VAL], "") & "'" &
+			            ",dataCadastro:'" & FORMAT([DATA_CADASTRO_VAL], "dd/MM/yyyy") & "'" &
+			            ",cnpj:'" & [cnpj_cpf] & "'" &
+			            ",nome:'" & SUBSTITUTE(SUBSTITUTE([razao_social], "'", " "), """", " ") & "'" &
+			            ",categoria:'" & SUBSTITUTE(SUBSTITUTE([descricao_cat], "'", " "), """", " ") & "'" &
+			            ",valor:" & SUBSTITUTE(FORMAT([valor_bruto], "0.00"), ",", ".") &
+			            ",dataPagamento:'" & FORMAT([data_lancamento], "dd/MM/yyyy") & "'" &
+			            ",unidade:'" & COALESCE([unidade_id], "") & "'" &
+			            ",nomeUnidade:'" & SUBSTITUTE(SUBSTITUTE(COALESCE([NOME_UNIDADE_VAL], ""), "'", " "), """", " ") & "'" &
+			            ",percHonorario:" & SUBSTITUTE(FORMAT(COALESCE([HonorariosPorJob.honorario], 0), "0.00"), ",", ".") &
+			            ",valorUnit:" & SUBSTITUTE(FORMAT([valor_bruto] * COALESCE([HonorariosPorJob.honorario], 0) / 100, "0.00"), ",", ".") &
+			            ",status:'Pendente'" &
+			        "}",
+			        ",", [razao_social], ASC
+			    )
+			
+			VAR vTotalValor = SUMX(vRecebido, [valor_bruto])
+			VAR vCountRows = COUNTROWS(vRecebido)
+			VAR vCountUnidades = COUNTROWS(DISTINCT(SELECTCOLUMNS(vRecebido, "u", [unidade_id])))
+			VAR _html = "
+			<!DOCTYPE html>
+			<html>
+			<head>
+			<style>
+			:root {
+			    --bg-dark: #0a0e1a;
+			    --bg-panel: #0d1120;
+			    --bg-header: #111628;
+			    --bg-card: #141a2e;
+			    --bg-row-even: #0f1424;
+			    --bg-row-odd: #111829;
+			    --text-main: #e8eaf0;
+			    --text-muted: #6b7394;
+			    --text-dim: #4a5270;
+			    --gold: #D4AF37;
+			    --gold-bright: #FFD700;
+			    --gold-dim: rgba(212,175,55,0.15);
+			    --green: #00e676;
+			    --green-dim: rgba(0,230,118,0.12);
+			    --red: #ff1744;
+			    --red-dim: rgba(255,23,68,0.12);
+			    --border: #1a2040;
+			    --border-gold: rgba(212,175,55,0.25);
+			}
+			* { box-sizing: border-box; margin: 0; padding: 0; }
+			body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-dark); color: var(--text-main); overflow: hidden; }
+			
+			.app { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
+			
+			.header {
+			    flex-shrink: 0; height: 52px;
+			    display: flex; align-items: center; justify-content: space-between;
+			    padding: 0 28px;
+			    background: linear-gradient(135deg, var(--bg-header) 0%, #0e1225 100%);
+			    border-bottom: 1px solid var(--gold);
+			    box-shadow: 0 2px 20px rgba(212,175,55,0.08);
+			}
+			.logo { font-size: 18px; font-weight: 900; letter-spacing: 2px; color: var(--gold); text-shadow: 0 0 12px rgba(212,175,55,0.25); }
+			.header-title { font-size: 13px; font-weight: 400; letter-spacing: 4px; color: var(--text-muted); text-transform: uppercase; }
+			
+			.summary {
+			    flex-shrink: 0; display: flex; gap: 16px; padding: 14px 28px;
+			    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+			}
+			.card {
+			    flex: 1; padding: 14px 20px; border-radius: 12px;
+			    background: linear-gradient(145deg, var(--bg-card) 0%, #181f38 100%);
+			    border: 1px solid var(--border); position: relative; overflow: hidden;
+			    transition: transform 0.2s, box-shadow 0.2s;
+			}
+			.card:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+			.card::before {
+			    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+			    background: linear-gradient(90deg, var(--gold), var(--gold-bright), var(--gold));
+			}
+			.card-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+			.card-value { font-size: 20px; font-weight: 800; color: var(--text-main); }
+			.card-value .currency { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-right: 4px; }
+			.card-sub { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+			
+			.controls {
+			    flex-shrink: 0; display: flex; align-items: center; gap: 12px;
+			    padding: 10px 28px; background: var(--bg-panel); border-bottom: 1px solid var(--border);
+			}
+			.search-box { flex: 1; max-width: 320px; }
+			.search-box input {
+			    width: 100%; padding: 7px 14px; border-radius: 8px;
+			    border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);
+			    font-size: 12px; outline: none; transition: border 0.2s;
+			}
+			.search-box input:focus { border-color: var(--gold); }
+			.filter-btn {
+			    padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+			    background: var(--bg-card); color: var(--text-muted); font-size: 11px;
+			    font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;
+			}
+			.filter-btn:hover, .filter-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+			.count-badge { margin-left: auto; font-size: 11px; color: var(--text-muted); font-weight: 600; }
+			
+			.btn-save {
+			    padding: 7px 20px; border-radius: 8px; border: 1px solid var(--green);
+			    background: var(--green-dim); color: var(--green); font-size: 12px;
+			    font-weight: 700; cursor: pointer; transition: all 0.25s; letter-spacing: 0.5px;
+			    text-transform: uppercase;
+			}
+			.btn-save:hover { background: var(--green); color: #0a0e1a; box-shadow: 0 0 16px rgba(0,230,118,0.35); }
+			.btn-save:active { transform: scale(0.96); }
+			.btn-save.has-changes { animation: pulse-green 1.5s infinite; }
+			@keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(0,230,118,0.4)} 50%{box-shadow:0 0 12px 4px rgba(0,230,118,0.2)} }
+			
+			.toast {
+			    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+			    background: #1a2e1a; border: 1px solid var(--green); color: var(--green);
+			    padding: 12px 28px; border-radius: 10px; font-size: 13px; font-weight: 700;
+			    z-index: 9999; opacity: 0; transition: all 0.4s ease;
+			    box-shadow: 0 8px 32px rgba(0,230,118,0.2);
+			}
+			.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+			
+			.table-wrap { flex: 1; overflow-y: auto; padding: 0 28px 14px; }
+			.table-wrap::-webkit-scrollbar { width: 5px; }
+			.table-wrap::-webkit-scrollbar-track { background: var(--bg-dark); }
+			.table-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+			
+			table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+			
+			thead th {
+			    position: sticky; top: 0; z-index: 10;
+			    background: var(--bg-header); color: var(--gold); font-weight: 700;
+			    padding: 10px 8px; text-transform: uppercase; letter-spacing: 1px;
+			    border-bottom: 1px solid var(--gold); font-size: 10px; text-align: left;
+			    white-space: nowrap; cursor: pointer; user-select: none;
+			}
+			thead th.num { text-align: right; }
+			
+			tbody tr { transition: background 0.15s; }
+			tbody tr:nth-child(even) { background: var(--bg-row-even); }
+			tbody tr:nth-child(odd) { background: var(--bg-row-odd); }
+			tbody tr:hover { background: #1a2245; }
+			
+			td { padding: 9px 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+			td.num { text-align: right; }
+			
+			.cnpj { font-family: Consolas, monospace; font-size: 11px; color: var(--text-main); }
+			.nome { font-weight: 600; color: var(--text-main); }
+			.valor { color: var(--gold-bright); font-weight: 700; }
+			.unidade-code {
+			    display: inline-block; padding: 2px 8px; border-radius: 4px;
+			    background: var(--gold-dim); color: var(--text-main); font-size: 10px; font-weight: 700;
+			}
+			.perc { font-weight: 600; color: var(--text-main); }
+			
+			.status-btn-group { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+			.status-btn {
+			    width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border);
+			    background: var(--bg-card); color: var(--text-muted); font-size: 10px; font-weight: 800;
+			    cursor: pointer; display: flex; align-items: center; justify-content: center;
+			    transition: all 0.2s;
+			}
+			.status-btn:hover { border-color: var(--gold); color: var(--gold); }
+			.status-btn.active-p { background: rgba(255,145,0,0.15); border-color: #ff9100; color: #ff9100; }
+			.status-btn.active-a { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+			.status-btn.active-r { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+			.btn-lock {
+			    padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+			    background: transparent; color: var(--text-muted); font-size: 11px;
+			    font-weight: 700; cursor: pointer; transition: all 0.2s; margin-left: 12px;
+			}
+			.btn-lock:hover { border-color: var(--gold); color: var(--gold); }
+			.btn-lock.unlocked { color: var(--green); border-color: var(--green); }
+			.icon-eye { cursor: pointer; opacity: 0.6; transition: opacity 0.2s; margin-left: 6px; font-size: 14px; }
+			.icon-eye:hover { opacity: 1; transform: scale(1.1); }
+			
+			.modal-overlay {
+			    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+			    background: rgba(10,14,26,0.85); display: flex; align-items: center; justify-content: center;
+			    z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+			}
+			.modal-overlay.show { opacity: 1; pointer-events: auto; }
+			.modal {
+			    background: var(--bg-card); border: 1px solid var(--gold); border-radius: 12px;
+			    padding: 24px; width: 340px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+			    transform: translateY(20px); transition: transform 0.3s;
+			}
+			.modal-overlay.show .modal { transform: translateY(0); }
+			.modal-title { font-size: 14px; font-weight: 700; color: var(--red); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;}
+			.modal textarea {
+			    width: 100%; height: 80px; background: var(--bg-dark); border: 1px solid var(--border);
+			    border-radius: 8px; color: var(--text-main); padding: 10px; font-family: inherit; font-size: 12px;
+			    resize: none; outline: none; margin-bottom: 16px;
+			}
+			.modal textarea:focus { border-color: var(--red); }
+			.input-password {
+			    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+			    background: var(--bg-dark); color: var(--text-main); font-size: 14px; outline: none;
+			    margin-bottom: 16px; text-align: center; letter-spacing: 2px;
+			}
+			.input-password:focus { border-color: var(--gold); }
+			.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+			.modal-btn { padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; }
+			.modal-btn.cancel { background: var(--bg-row-odd); color: var(--text-muted); border: 1px solid var(--border); }
+			.modal-btn.confirm { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+			
+			tfoot td {
+			    background: var(--bg-header); color: var(--gold); font-weight: 800;
+			    padding: 10px 8px; border-top: 2px solid var(--gold); font-size: 12px;
+			}
+			
+			@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+			tbody tr { animation: fadeIn 0.25s ease forwards; }
+			</style>
+			</head>
+			<body>
+			<div class='app'>
+			    <div class='header'>
+			        <div class='logo'>GS</div>
+			        <div class='header-title'>Painel de Repasses</div>
+			    </div>
+			
+			    <div class='summary'>
+			        <div class='card'>
+			            <div class='card-label'>Valor Total Repasses</div>
+			            <div class='card-value'><span class='currency'>R$</span>" & FORMAT(vTotalValor, "#,##0.00") & "</div>
+			            <div class='card-sub'>" & FORMAT(vCountRows, "0") & " clientes</div>
+			        </div>
+			        <div class='card'>
+			            <div class='card-label'>Unidades</div>
+			            <div class='card-value'>" & FORMAT(vCountUnidades, "0") & "</div>
+			            <div class='card-sub'>unidades distintas</div>
+			        </div>
+			        <div class='card' id='card-approved'>
+			            <div class='card-label'>Aprovados</div>
+			            <div class='card-value' id='approved-count'>0 / " & FORMAT(vCountRows, "0") & "</div>
+			            <div class='card-sub' id='approved-pct'>0% aprovado</div>
+			        </div>
+			    </div>
+			
+			    <div class='controls'>
+			        <div class='search-box'>
+			            <input type='text' id='search' placeholder='Buscar por CNPJ, nome ou unidade...' oninput='filterTable()'>
+			        </div>
+			        <div class='search-box' style='max-width:130px'>
+			            <input type='date' id='search-date' onchange='filterTable()' title='Filtrar por Data'>
+			        </div>
+			        <button class='filter-btn active' onclick='setFilter(this,""all"")'>Todos</button>
+			        <button class='filter-btn' onclick='setFilter(this,""approved"")'>Aprovados</button>
+			        <button class='filter-btn' onclick='setFilter(this,""pending"")'>Pendentes</button>
+			        <button class='filter-btn' onclick='setFilter(this,""rejected"")'>Reprovados</button>
+			        <button class='btn-lock' id='btn-lock' onclick='toggleLock()'>🔒 Desbloquear</button>
+			        <span class='count-badge' id='visible-count'></span>
+			        <button class='btn-save' id='btn-copy' onclick='copyToExcel()' style='border-color:var(--gold); color:var(--gold); background:var(--gold-dim); margin-right:8px;'>Copiar</button>
+			        <button class='btn-save' id='btn-save' onclick='gravarEstado()' style='display:none;'>Gravar</button>
+			    </div>
+			
+			    <div class='table-wrap'>
+			        <table>
+			            <thead>
+			                <tr>
+			                    <th onclick='sortBy(""job"")'>JOB</th>
+			                    <th onclick='sortBy(""dataCadastro"")'>Data Cadastro</th>
+			                    <th onclick='sortBy(""nome"")'>Cliente</th>
+			                    <th onclick='sortBy(""cnpj"")'>CNPJ</th>
+			                    <th onclick='sortBy(""categoria"")'>Categoria</th>
+			                    <th class='num' onclick='sortBy(""valor"")'>Valor</th>
+			                    <th class='num' onclick='sortBy(""dataPagamento"")'>Data Pgto</th>
+			                    <th>Unidade</th>
+			                    <th>Nome Unidade</th>
+			                    <th class='num' onclick='sortBy(""percUnidade"")'>% Repasse</th>
+			                    <th class='num' onclick='sortBy(""percHonorario"")'>% JOB</th>
+			                    <th class='num' onclick='sortBy(""valorUnit"")'>Vl. Repasse</th>
+			                    <th class='num'>Status</th>
+			                </tr>
+			            </thead>
+			            <tbody id='tbody'></tbody>
+			            <tfoot id='tfoot'></tfoot>
+			        </table>
+			    </div>
+			</div>
+			<div class='modal-overlay' id='modal-reprova'>
+			    <div class='modal'>
+			        <div class='modal-title' id='modal-title'>Motivo da Reprovação</div>
+			        <div id='motivo-leitura' style='display:none; font-size:13px; color:var(--text-main); margin-bottom:16px; background:var(--bg-dark); padding:12px; border-radius:8px; border:1px solid var(--border); min-height:80px;'></div>
+			        <textarea id='motivo-texto' placeholder='Digite o motivo para reprovar este repasse...'></textarea>
+			        <div class='modal-actions'>
+			            <button class='modal-btn cancel' onclick='fecharModal()'>Fechar</button>
+			            <button class='modal-btn confirm' id='btn-confirm-modal' onclick='confirmarReprova()'>Reprovar</button>
+			        </div>
+			    </div>
+			</div>
+			<div class='modal-overlay' id='modal-senha'>
+			    <div class='modal' style='width: 300px; text-align:center;'>
+			        <div class='modal-title' style='color:var(--gold);'>Acesso Restrito</div>
+			        <div style='font-size:12px; color:var(--text-muted); margin-bottom:16px;'>Digite a senha para habilitar a edição</div>
+			        <input type='password' id='senha-texto' class='input-password' placeholder='****'>
+			        <div class='modal-actions' style='justify-content:center;'>
+			            <button class='modal-btn cancel' onclick='fecharSenha()'>Cancelar</button>
+			            <button class='modal-btn confirm' style='background:var(--gold-dim); color:var(--gold); border-color:var(--gold);' onclick='confirmarSenha()'>Desbloquear</button>
+			        </div>
+			    </div>
+			</div>
+			<div class='toast' id='toast'>Estado salvo com sucesso!</div>
+			
+			<script>
+			var rawData = [" & vJsonRows & "];
+			
+			for (var i=0; i<rawData.length; i++) {
+			    if (!rawData[i].status || rawData[i].status.trim() === '') {
+			        rawData[i].status = 'Pendente';
+			    }
+			}
+			
+			var currentFilter = 'all';
+			var currentSort = {key:'nome', asc:true};
+			
+			var hasUnsaved = false;
+			var isUnlocked = false;
+			
+			function toggleLock() {
+			    if (isUnlocked) {
+			        isUnlocked = false;
+			        document.getElementById('btn-lock').innerHTML = '🔒 Desbloquear';
+			        document.getElementById('btn-lock').classList.remove('unlocked');
+			        document.getElementById('btn-save').style.display = 'none';
+			        renderTable();
+			        return;
+			    }
+			    document.getElementById('senha-texto').value = '';
+			    document.getElementById('modal-senha').classList.add('show');
+			    document.getElementById('senha-texto').focus();
+			}
+			
+			function fecharSenha() {
+			    document.getElementById('modal-senha').classList.remove('show');
+			}
+			
+			function confirmarSenha() {
+			    var senha = document.getElementById('senha-texto').value;
+			    if (senha === 'Gs@2026') {
+			        isUnlocked = true;
+			        document.getElementById('btn-lock').innerHTML = '🔓 Bloquear';
+			        document.getElementById('btn-lock').classList.add('unlocked');
+			        document.getElementById('btn-save').style.display = 'inline-block';
+			        showToast('Edição liberada!');
+			        fecharSenha();
+			        renderTable();
+			    } else {
+			        showToast('Senha incorreta!');
+			        document.getElementById('senha-texto').value = '';
+			        document.getElementById('senha-texto').focus();
+			    }
+			}
+			
+			var API_URL = 'https://api-aprovacoes-94n5.onrender.com/api/aprovacoes';
+			
+			function loadSaved() {
+			    fetch(API_URL, {method:'GET'})
+			    .then(function(r){return r.json();})
+			    .then(function(map){
+			        if (map) {
+			            for (var i=0;i<rawData.length;i++) {
+			                var saved = map[String(rawData[i].id)];
+			                if (saved !== undefined) {
+			                    if (typeof saved === 'string') {
+			                        rawData[i].status = saved;
+			                    } else if (typeof saved === 'object') {
+			                        rawData[i].status = saved.status;
+			                        rawData[i].motivo = saved.motivo;
+			                    }
+			                } else if (!rawData[i].status || rawData[i].status === '') {
+			                    rawData[i].status = 'Pendente';
+			                }
+			            }
+			            renderTable();
+			        }
+			    })
+			    .catch(function(e){ console.log('Servidor offline'); });
+			}
+			
+			function fmtBRL(v) {
+			    return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+			}
+			
+			var itemSendoReprovado = null;
+			
+			function setStatus(id, newStatus) {
+			    if (!isUnlocked) {
+			        showToast('Clique em 🔒 Desbloquear para editar!');
+			        return;
+			    }
+			    var item = rawData.find(function(r){return r.id===id;});
+			    if (!item) return;
+			    if (newStatus === 'Reprovado') {
+			        itemSendoReprovado = item;
+			        document.getElementById('modal-title').textContent = 'Motivo da Reprovação';
+			        document.getElementById('motivo-leitura').style.display = 'none';
+			        document.getElementById('motivo-texto').style.display = 'block';
+			        document.getElementById('motivo-texto').value = item.motivo || '';
+			        document.getElementById('btn-confirm-modal').style.display = 'inline-block';
+			        document.getElementById('modal-reprova').classList.add('show');
+			        return;
+			    }
+			    item.status = newStatus;
+			    item.motivo = '';
+			    markUnsaved();
+			}
+			
+			function lerMotivo(id) {
+			    var item = rawData.find(function(r){return r.id===id;});
+			    if (!item) return;
+			    document.getElementById('modal-title').textContent = 'Motivo Registrado';
+			    document.getElementById('motivo-texto').style.display = 'none';
+			    document.getElementById('motivo-leitura').style.display = 'block';
+			    document.getElementById('motivo-leitura').textContent = item.motivo || 'Nenhum motivo registrado.';
+			    document.getElementById('btn-confirm-modal').style.display = 'none';
+			    document.getElementById('modal-reprova').classList.add('show');
+			}
+			
+			function fecharModal() {
+			    document.getElementById('modal-reprova').classList.remove('show');
+			    itemSendoReprovado = null;
+			}
+			
+			function confirmarReprova() {
+			    if (itemSendoReprovado) {
+			        itemSendoReprovado.status = 'Reprovado';
+			        itemSendoReprovado.motivo = document.getElementById('motivo-texto').value;
+			        markUnsaved();
+			    }
+			    fecharModal();
+			}
+			
+			function markUnsaved() {
+			    hasUnsaved = true;
+			    var btn = document.getElementById('btn-save');
+			    btn.classList.add('has-changes');
+			    btn.textContent = 'GRAVAR *';
+			    renderTable();
+			}
+			
+			function gravarEstado() {
+			    var map = {};
+			    for (var i=0;i<rawData.length;i++) {
+			        map[String(rawData[i].id)] = {
+			            status: rawData[i].status,
+			            motivo: rawData[i].motivo || ''
+			        };
+			    }
+			    fetch(API_URL, {
+			        method:'POST',
+			        headers:{'Content-Type':'application/json'},
+			        body: JSON.stringify(map)
+			    })
+			    .then(function(r){return r.json();})
+			    .then(function(resp){
+			        hasUnsaved = false;
+			        var btn = document.getElementById('btn-save');
+			        btn.classList.remove('has-changes');
+			        btn.textContent = 'GRAVAR';
+			        showToast('Estado gravado com sucesso!');
+			    })
+			    .catch(function(e){
+			        showToast('Erro: servidor offline. Rode o servidor_aprovacoes.py');
+			    });
+			}
+			
+			function copyToExcel() {
+			    var tsv = 'JOB\tData Cadastro\tCliente\tCNPJ\tCategoria\tValor\tData Pgto\tUnidade\tNome Unidade\t% Repasse\t% JOB\tVl. Repasse\tStatus\tMotivo\n';
+			    var search = document.getElementById('search').value.toLowerCase();
+			    var searchDate = document.getElementById('search-date').value;
+			    if (searchDate) { var p=searchDate.split('-'); searchDate = p[2]+'/'+p[1]+'/'+p[0]; }
+			    
+			    var data = rawData.filter(function(r) {
+			        var ms = !search || r.cnpj.toLowerCase().indexOf(search)>=0 || r.nome.toLowerCase().indexOf(search)>=0 || r.unidade.toLowerCase().indexOf(search)>=0 || r.nomeUnidade.toLowerCase().indexOf(search)>=0 || (r.categoria && r.categoria.toLowerCase().indexOf(search)>=0);
+			        var md = !searchDate || r.dataPagamento === searchDate;
+			        var mf = currentFilter==='all' || (currentFilter==='approved' && r.status==='Aprovado') || (currentFilter==='pending' && r.status==='Pendente') || (currentFilter==='rejected' && r.status==='Reprovado');
+			        return ms && md && mf;
+			    });
+			    for (var i=0; i<data.length; i++) {
+			        var r = data[i];
+			        var m = (r.motivo || '').replace(/\n/g, ' ');
+			        tsv += (r.job||'') + '\t' + (r.dataCadastro||'') + '\t' + r.nome + '\t' + r.cnpj + '\t' + (r.categoria||'') + '\t' + String(r.valor).replace('.', ',') + '\t' + (r.dataPagamento||'') + '\t' + r.unidade + '\t' + r.nomeUnidade + '\t' + String(r.percUnidade).replace('.', ',') + '\t' + String(r.percHonorario).replace('.', ',') + '\t' + String(r.valorUnit).replace('.', ',') + '\t' + r.status + '\t' + m + '\n';
+			    }
+			    var el = document.createElement('textarea');
+			    el.value = tsv;
+			    document.body.appendChild(el);
+			    el.select();
+			    try {
+			        document.execCommand('copy');
+			        showToast('Tabela copiada! Cole no Excel (Ctrl+V)');
+			    } catch(e) {
+			        showToast('Erro ao copiar');
+			    }
+			    document.body.removeChild(el);
+			}
+			
+			function showToast(msg) {
+			    var t = document.getElementById('toast');
+			    t.textContent = msg;
+			    t.classList.add('show');
+			    setTimeout(function(){ t.classList.remove('show'); }, 2500);
+			}
+			
+			function updateCards() {
+			    var approved = rawData.filter(function(r){return r.status==='Aprovado';}).length;
+			    var total = rawData.length;
+			    var pct = total>0 ? Math.round((approved/total)*100) : 0;
+			    document.getElementById('approved-count').innerHTML = approved + ' / ' + total;
+			    document.getElementById('approved-pct').innerHTML = pct + '% aprovado';
+			    var card = document.getElementById('card-approved');
+			    if (pct===100) card.style.borderColor='var(--green)';
+			    else if (pct>0) card.style.borderColor='#ff9100';
+			    else card.style.borderColor='var(--border)';
+			}
+			
+			function setFilter(btn, f) {
+			    currentFilter = f;
+			    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+			    btn.classList.add('active');
+			    renderTable();
+			}
+			
+			function filterTable() { renderTable(); }
+			
+			function sortBy(key) {
+			    if (currentSort.key===key) currentSort.asc=!currentSort.asc;
+			    else { currentSort.key=key; currentSort.asc=true; }
+			    renderTable();
+			}
+			
+			function renderTable() {
+			    var search = document.getElementById('search').value.toLowerCase();
+			    var searchDate = document.getElementById('search-date').value;
+			    if (searchDate) { var p=searchDate.split('-'); searchDate = p[2]+'/'+p[1]+'/'+p[0]; }
+			
+			    var data = rawData.filter(function(r) {
+			        var ms = !search || r.cnpj.toLowerCase().indexOf(search)>=0 || r.nome.toLowerCase().indexOf(search)>=0 || r.unidade.toLowerCase().indexOf(search)>=0 || r.nomeUnidade.toLowerCase().indexOf(search)>=0 || (r.categoria && r.categoria.toLowerCase().indexOf(search)>=0);
+			        var md = !searchDate || r.dataPagamento === searchDate;
+			        var mf = currentFilter==='all' || (currentFilter==='approved' && r.status==='Aprovado') || (currentFilter==='pending' && r.status==='Pendente') || (currentFilter==='rejected' && r.status==='Reprovado');
+			        return ms && md && mf;
+			    });
+			    data.sort(function(a,b) {
+			        var va=a[currentSort.key], vb=b[currentSort.key];
+			        if (typeof va==='string'){va=va.toLowerCase();vb=vb.toLowerCase();}
+			        if (va<vb) return currentSort.asc?-1:1;
+			        if (va>vb) return currentSort.asc?1:-1;
+			        return 0;
+			    });
+			
+			    var html='';
+			    var sumVal=0, sumUnit=0;
+			    for (var i=0;i<data.length;i++) {
+			        var r=data[i];
+			        var st = r.status || 'Pendente';
+			        var pU = r.percUnidade;
+			        var pH = r.percHonorario;
+			        sumVal+=r.valor;
+			        if(r.valorUnit) sumUnit+=r.valorUnit;
+			
+			        html+='<tr style=""animation-delay:'+(i*0.03)+'s"">';
+			        html+='<td style=""color:var(--text-main);font-weight:600"">'+(r.job||'-')+'</td>';
+			        html+='<td style=""color:var(--text-main)"">'+(r.dataCadastro||'-')+'</td>';
+			        html+='<td><span class=""nome"">'+r.nome+'</span></td>';
+			        html+='<td><span class=""cnpj"">'+r.cnpj+'</span></td>';
+			        html+='<td><span style=""color:var(--gold);font-weight:600;font-size:10px;text-transform:uppercase;"">'+(r.categoria||'-')+'</span></td>';
+			        html+='<td class=""valor num"">'+fmtBRL(r.valor)+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main);font-weight:600"">'+(r.dataPagamento||'-')+'</td>';
+			        html+='<td><span class=""unidade-code"">'+(r.unidade||'')+'</span></td>';
+			        html+='<td style=""color:var(--text-main);font-size:11px"">'+(r.nomeUnidade||'')+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main)"">'+(pU ? String(pU).replace('.', ',')+'%' : '-')+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main);font-weight:600;"">'+(pH ? String(pH).replace('.', ',')+'%' : '0,00%')+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main)"">'+(r.valorUnit ? fmtBRL(r.valorUnit) : '-')+'</td>';
+			        html+='<td class=""num""><div class=""status-btn-group"">';
+			        html+='<div class=""status-btn '+(st==='Pendente'?'active-p':'')+'"" title=""Pendente"" onclick=""setStatus(\''+r.id+'\',\'Pendente\')"">P</div>';
+			        html+='<div class=""status-btn '+(st==='Aprovado'?'active-a':'')+'"" title=""Aprovado"" onclick=""setStatus(\''+r.id+'\',\'Aprovado\')"">A</div>';
+			        html+='<div class=""status-btn '+(st==='Reprovado'?'active-r':'')+'"" title=""Reprovado"" onclick=""setStatus(\''+r.id+'\',\'Reprovado\')"">R</div>';
+			        if (st==='Reprovado' && r.motivo) {
+			            html+='<span class=""icon-eye"" title=""Ver motivo"" onclick=""lerMotivo(\''+r.id+'\')"">👁️</span>';
+			        }
+			        html+='</div></td>';
+			        html+='</tr>';
+			    }
+			    document.getElementById('tbody').innerHTML=html;
+			
+			    var foot='<tr>';
+			    foot+='<td colspan=""5"">TOTAL</td>';
+			    foot+='<td class=""valor num"">'+fmtBRL(sumVal)+'</td>';
+			    foot+='<td colspan=""5""></td>';
+			    foot+='<td class=""valor num"">'+fmtBRL(sumUnit)+'</td>';
+			    foot+='<td></td>';
+			    foot+='</tr>';
+			    document.getElementById('tfoot').innerHTML=foot;
+			
+			    document.getElementById('visible-count').innerHTML=data.length+' de '+rawData.length+' exibidos';
+			    updateCards();
+			}
+			
+			loadSaved();
+			renderTable();
+			</script>
+			</body>
+			</html>
+			"
+			
+			RETURN _html

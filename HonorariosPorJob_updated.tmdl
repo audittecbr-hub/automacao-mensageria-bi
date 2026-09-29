@@ -1,0 +1,42 @@
+table HonorariosPorJob
+	lineageTag: c28bcfee-647c-4710-a5b4-219ddb86f5dc
+
+	column numero_contrato
+		dataType: string
+		lineageTag: fcaef7d0-2475-48ad-bc01-0299f9ac9d0d
+		summarizeBy: none
+		sourceColumn: numero_contrato
+
+		annotation SummarizationSetBy = Automatic
+
+	column honorario
+		dataType: double
+		lineageTag: 94b0a0ae-e2f1-4edd-adde-c1e1774bb3ec
+		summarizeBy: none
+		sourceColumn: honorario
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition HonorariosPorJob = m
+		mode: import
+		source = ```
+				let
+				    Fonte = Sql.Database("192.168.2.34", "STUDIO_FISCAL"),
+				    Resultado = Value.NativeQuery(
+				        Fonte, 
+				        "SELECT 
+				            CAST(JOB AS VARCHAR(50)) AS numero_contrato,
+				            dbo.Func_JOB_CALCULAR_HONORARIO(JOB, 'C') AS honorario
+				         FROM PROJECT_QBERT_JOBS WITH (NOLOCK)
+				         WHERE JOB IS NOT NULL"
+				    ),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(Resultado,{{"numero_contrato", type text}})
+				in
+				    #"Tipo Alterado"
+				```
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table

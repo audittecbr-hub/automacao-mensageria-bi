@@ -1,0 +1,1290 @@
+VAR _Filtered = 
+    FILTER(
+        'vw_powerbi_empresas_Onboarding',
+        'vw_powerbi_empresas_Onboarding'[DATA_CADASTRO] >= DATE(2024, 1, 1) &&
+        NOT ISBLANK('vw_powerbi_empresas_Onboarding'[JOB]) &&
+        NOT CONTAINSSTRING('vw_powerbi_empresas_Onboarding'[JOB], "-")
+    )
+
+VAR _TabelaBase = 
+    SUMMARIZE(
+        _Filtered,
+        'vw_powerbi_empresas_Onboarding'[JOB],
+        'vw_powerbi_empresas_Onboarding'[EMPRESA],
+        'vw_powerbi_empresas_Onboarding'[Grupo],
+        'vw_powerbi_empresas_Onboarding'[CONSULTOR],
+        'vw_powerbi_empresas_Onboarding'[UNIDADE],
+        'vw_powerbi_empresas_Onboarding'[DATA_CADASTRO],
+        'vw_powerbi_empresas_Onboarding'[CNPJ],
+        'vw_powerbi_empresas_Onboarding'[PROCURACAO],
+        'vw_powerbi_empresas_Onboarding'[ASSESSEMENT],
+        'vw_powerbi_empresas_Onboarding'[CHECKLIST],
+        'vw_powerbi_empresas_Onboarding'[TIPO_REQUISICAO],
+        'vw_powerbi_empresas_Onboarding'[STATUS_SLA_TEXTO]
+    )
+
+VAR _CombinedData = 
+    CONCATENATEX(
+        _TabelaBase,
+        VAR _p = IF(UPPER(TRIM([PROCURACAO])) = "SIM", 1, 0)
+        VAR _a = IF(UPPER(TRIM([ASSESSEMENT])) = "SIM", 2, 0)
+        VAR _flags = FORMAT(_p + _a, "0")
+        VAR _dtCad = FORMAT(INT([DATA_CADASTRO] - DATE(2024, 1, 1)), "0")
+        VAR _dtChk = IF(ISBLANK([CHECKLIST]), "", FORMAT(INT([CHECKLIST] - DATE(2024, 1, 1)), "0"))
+        VAR _emp = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(LEFT([EMPRESA], 24), "^", " "), "~", " "), UNICHAR(10), " "), UNICHAR(13), " "), UNICHAR(34), " ")
+        VAR _grp = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(LEFT(COALESCE([Grupo], ""), 14), "^", " "), "~", " "), UNICHAR(10), " "), UNICHAR(13), " "), UNICHAR(34), " ")
+        VAR _cons = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(LEFT(COALESCE([CONSULTOR], ""), 14), "^", " "), "~", " "), UNICHAR(10), " "), UNICHAR(13), " "), UNICHAR(34), " ")
+        VAR _job = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE([JOB], "^", " "), "~", " "), UNICHAR(10), " "), UNICHAR(13), " "), UNICHAR(34), " ")
+        VAR _tipo = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE([TIPO_REQUISICAO], ""), "^", " "), "~", " "), UNICHAR(10), " "), UNICHAR(13), " "), UNICHAR(34), " ")
+        VAR _sla = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE([STATUS_SLA_TEXTO], ""), "^", " "), "~", " "), UNICHAR(10), " "), UNICHAR(13), " "), UNICHAR(34), " ")
+        RETURN
+        _job & "^" & 
+        _emp & "^" & 
+        _grp & "^" & 
+        _cons & "^" & 
+        FORMAT([UNIDADE], "0") & "^" & 
+        _dtCad & "^" & 
+        COALESCE([CNPJ], "") & "^" & 
+        _flags & "^" & 
+        _dtChk & "^" &
+        _tipo & "^" &
+        _sla,
+        "~"
+    )
+
+VAR _DataHolderHTML = "<div id='rawOnboardingData' style='display:none;'>" & _CombinedData & "</div>"
+
+VAR _CSS = "<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
+  body, html { width: 100%; height: 100%; background-color: #070B14; color: #E2E8F0; overflow: hidden; }
+  
+  .onboarding-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 14px 16px;
+    background: radial-gradient(circle at 50% 0%, #111A2E 0%, #070B14 100%);
+    gap: 12px;
+  }
+
+  /* Controls Bar */
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 16px;
+    gap: 12px;
+  }
+  .search-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 420px;
+  }
+  .global-search {
+    width: 100%;
+    background: #0B1120;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #F8FAFC;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .global-search:focus {
+    border-color: #38BDF8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+  .controls-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-copiar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-copiar:hover {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: #10B981;
+    color: #6EE7B7;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+  }
+  .btn-reset {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #CBD5E1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #FCA5A5;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  .counter-badge {
+    font-size: 13px;
+    color: #94A3B8;
+  }
+  .counter-badge span {
+    font-weight: 700;
+    color: #38BDF8;
+  }
+
+  /* Table Wrapper */
+  .table-wrapper {
+    flex: 1;
+    overflow: auto;
+    background: rgba(11, 17, 32, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+  }
+  .table-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .table-wrapper::-webkit-scrollbar-track {
+    background: #070B14;
+  }
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: #1E293B;
+    border-radius: 4px;
+  }
+  .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+  }
+
+  /* Table */
+  table.exec-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  table.exec-table th {
+    position: sticky;
+    top: 0;
+    background: #0F172A;
+    color: #CBD5E1;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 2px solid rgba(56, 189, 248, 0.35);
+    z-index: 20;
+    overflow: visible;
+  }
+  .th-header-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .th-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+  }
+  .th-title:hover {
+    color: #38BDF8;
+  }
+  .th-search {
+    width: 100%;
+    background: #070B14;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #F1F5F9;
+    outline: none;
+    font-weight: normal;
+    text-transform: none;
+  }
+  .th-search:focus {
+    border-color: #38BDF8;
+    background: #0B1120;
+  }
+
+  /* Filter Buttons & Dropdowns */
+  .th-filter-btn {
+    width: 100%;
+    background: #070B14;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    gap: 4px;
+    font-weight: normal;
+    text-transform: none;
+  }
+  .th-filter-btn:hover, .th-filter-btn.active {
+    border-color: #38BDF8;
+    background: #0B1120;
+    color: #38BDF8;
+  }
+  .th-filter-btn .btn-txt {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 105px;
+  }
+  .th-filter-btn .arrow {
+    font-size: 9px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .th-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: #0F172A;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    padding: 6px;
+    z-index: 1000;
+    margin-top: 3px;
+    backdrop-filter: blur(12px);
+  }
+  .th-dropdown-menu::-webkit-scrollbar {
+    width: 5px;
+  }
+  .th-dropdown-menu::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+  }
+  .th-dropdown-menu.show {
+    display: block;
+  }
+  .th-dropdown-search-wrap {
+    padding: 2px 2px 6px 2px;
+    position: sticky;
+    top: 0;
+    background: #0F172A;
+    z-index: 10;
+  }
+  .th-dropdown-search {
+    width: 100%;
+    background: #070B14;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 11px;
+    color: #F8FAFC;
+    outline: none;
+    font-weight: normal;
+    text-transform: none;
+  }
+  .th-dropdown-search:focus {
+    border-color: #38BDF8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+  .th-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    font-size: 12px;
+    color: #E2E8F0;
+    cursor: pointer;
+    border-radius: 4px;
+    user-select: none;
+    text-transform: none;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .th-dropdown-item:hover {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38BDF8;
+  }
+  .th-dropdown-item input[type='checkbox'] {
+    accent-color: #38BDF8;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .th-dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 4px 0;
+  }
+
+  /* Date Popover */
+  .date-filter-popover {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 185px;
+    background: #0F172A;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    z-index: 1000;
+    margin-top: 3px;
+  }
+  .date-filter-popover.show {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .df-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .df-field label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #94A3B8;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .df-field input[type='date'] {
+    background: #070B14;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: #F8FAFC;
+    padding: 4px 6px;
+    font-size: 12px;
+    outline: none;
+    color-scheme: dark;
+  }
+  .df-field input[type='date']:focus {
+    border-color: #38BDF8;
+  }
+  .df-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .df-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #CBD5E1;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .df-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #FCA5A5;
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  
+  table.exec-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #E2E8F0;
+    vertical-align: middle;
+    font-size: 13px;
+  }
+  table.exec-table tbody tr {
+    transition: background 0.15s ease;
+  }
+  table.exec-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  table.exec-table tbody tr:hover {
+    background: rgba(56, 189, 248, 0.08) !important;
+  }
+
+  /* Badges & Cell Styles */
+  .badge-job {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 5px;
+    background: rgba(2, 132, 199, 0.22);
+    color: #38BDF8;
+    font-weight: 700;
+    font-size: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    letter-spacing: 0.3px;
+  }
+  .font-bold { font-weight: 600; color: #FFFFFF; }
+  .font-mono { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; }
+  .badge-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.15);
+    color: #CBD5E1;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .b-green { background: rgba(16, 185, 129, 0.18); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.35); }
+  .b-red { background: rgba(239, 68, 68, 0.18); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.35); }
+  .b-blue { background: rgba(56, 189, 248, 0.18); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.35); }
+  .b-gray { background: rgba(148, 163, 184, 0.12); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.25); }
+  .b-sla-delayed { background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.35); font-size: 11px; }
+  .b-sla-ok { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 11px; }
+  .b-sla-neutral { background: rgba(148, 163, 184, 0.12); color: #CBD5E1; border: 1px solid rgba(148, 163, 184, 0.2); font-size: 11px; }
+  .cell-tipo { font-size: 12px; color: #E2E8F0; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>"
+
+VAR _HeaderHTML = "<div class='onboarding-container'>
+  <!-- CONTROLS BAR -->
+  <div class='controls-bar'>
+    <div class='search-group'>
+      <input type='text' id='globalSearch' class='global-search' placeholder='🔍 Busca rápida em todas as colunas...' oninput='window.applyFilters()'>
+    </div>
+    <div class='controls-right'>
+      <button id='btnCopiar' class='btn-copiar' onclick='window.copiarTabela()' title='Copia todos os dados filtrados em formato de tabela para colar no Excel'>📋 Copiar p/ Excel</button>
+      <button class='btn-reset' onclick='window.resetFilters()'>Limpar Filtros</button>
+      <div class='counter-badge'>Exibindo <span id='visibleCount'>0</span> de <span id='totalCount'>0</span> registros</div>
+    </div>
+  </div>
+
+  <!-- TABLE WRAPPER -->
+  <div class='table-wrapper' id='tableWrapper' onscroll='window.handleScroll()'>
+    <table class='exec-table' id='onboardingTable'>
+      <thead>
+        <tr>
+          <!-- 0: JOB -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(0)'>JOB <span>↕</span></div>
+              <input type='text' class='th-search' placeholder='Filtrar...' data-col='0' oninput='window.applyFilters()'>
+            </div>
+          </th>
+          <!-- 1: EMPRESA (MULTI-SELECT DROPDOWN COM BUSCA) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(1)'>EMPRESA <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""dropdown_empresa"")'>
+                <span class='btn-txt' id='btn_empresa_label'>Todos</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='th-dropdown-menu' id='dropdown_empresa' onclick='event.stopPropagation()'></div>
+            </div>
+          </th>
+          <!-- 2: GRUPO (MULTI-SELECT DROPDOWN COM BUSCA) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(2)'>GRUPO <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""dropdown_grupo"")'>
+                <span class='btn-txt' id='btn_grupo_label'>Todos</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='th-dropdown-menu' id='dropdown_grupo' onclick='event.stopPropagation()'></div>
+            </div>
+          </th>
+          <!-- 3: CONSULTOR (MULTI-SELECT DROPDOWN COM BUSCA) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(3)'>CONSULTOR <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""dropdown_consultor"")'>
+                <span class='btn-txt' id='btn_consultor_label'>Todos</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='th-dropdown-menu' id='dropdown_consultor' onclick='event.stopPropagation()'></div>
+            </div>
+          </th>
+          <!-- 4: UNIDADE -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(4)'>UNIDADE <span>↕</span></div>
+              <input type='text' class='th-search' placeholder='Filtrar...' data-col='4' oninput='window.applyFilters()'>
+            </div>
+          </th>
+          <!-- 5: CADASTRO (DATA FILTER) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(5)'>CADASTRO <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""popover_cad"")'>
+                <span class='btn-txt' id='btn_cad_label'>Período 📅</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='date-filter-popover' id='popover_cad' onclick='event.stopPropagation()'>
+                <div class='df-field'>
+                  <label>Data Inicial:</label>
+                  <input type='date' id='df_from_cad' onchange='window.applyFilters()'>
+                </div>
+                <div class='df-field'>
+                  <label>Data Final:</label>
+                  <input type='date' id='df_to_cad' onchange='window.applyFilters()'>
+                </div>
+                <div class='df-actions'>
+                  <button type='button' class='df-btn' onclick='window.clearDateFilter(""cad"")'>Limpar</button>
+                </div>
+              </div>
+            </div>
+          </th>
+          <!-- 6: CNPJ -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(6)'>CNPJ <span>↕</span></div>
+              <input type='text' class='th-search' placeholder='Filtrar...' data-col='6' oninput='window.applyFilters()'>
+            </div>
+          </th>
+          <!-- 7: PROCURACAO (MULTI-SELECT) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(7)'>PROCURAÇÃO <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""dropdown_proc"")'>
+                <span class='btn-txt' id='btn_proc_label'>Todos</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='th-dropdown-menu' id='dropdown_proc' onclick='event.stopPropagation()'>
+                <label class='th-dropdown-item'>
+                  <input type='checkbox' id='all_proc' checked onchange='window.toggleSelectAllSimple(""proc"", this)'>
+                  <strong>(Todos)</strong>
+                </label>
+                <div class='th-dropdown-divider'></div>
+                <label class='th-dropdown-item'>
+                  <input type='checkbox' class='chk-proc' value='SIM' checked onchange='window.checkGroupItemSimple(""proc"")'>
+                  SIM
+                </label>
+                <label class='th-dropdown-item'>
+                  <input type='checkbox' class='chk-proc' value='NÃO' checked onchange='window.checkGroupItemSimple(""proc"")'>
+                  NÃO
+                </label>
+              </div>
+            </div>
+          </th>
+          <!-- 8: ASSESSMENT (MULTI-SELECT) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(8)'>ASSESSMENT <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""dropdown_ass"")'>
+                <span class='btn-txt' id='btn_ass_label'>Todos</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='th-dropdown-menu' id='dropdown_ass' onclick='event.stopPropagation()'>
+                <label class='th-dropdown-item'>
+                  <input type='checkbox' id='all_ass' checked onchange='window.toggleSelectAllSimple(""ass"", this)'>
+                  <strong>(Todos)</strong>
+                </label>
+                <div class='th-dropdown-divider'></div>
+                <label class='th-dropdown-item'>
+                  <input type='checkbox' class='chk-ass' value='SIM' checked onchange='window.checkGroupItemSimple(""ass"")'>
+                  SIM
+                </label>
+                <label class='th-dropdown-item'>
+                  <input type='checkbox' class='chk-ass' value='NÃO' checked onchange='window.checkGroupItemSimple(""ass"")'>
+                  NÃO
+                </label>
+              </div>
+            </div>
+          </th>
+          <!-- 9: TIPO (MULTI-SELECT DROPDOWN COM BUSCA) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(9)'>TIPO <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""dropdown_tipo"")'>
+                <span class='btn-txt' id='btn_tipo_label'>Todos</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='th-dropdown-menu' id='dropdown_tipo' onclick='event.stopPropagation()'></div>
+            </div>
+          </th>
+          <!-- 10: STATUS SLA (MULTI-SELECT DROPDOWN COM BUSCA) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(10)'>STATUS SLA <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""dropdown_sla"")'>
+                <span class='btn-txt' id='btn_sla_label'>Todos</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='th-dropdown-menu' id='dropdown_sla' onclick='event.stopPropagation()'></div>
+            </div>
+          </th>
+          <!-- 11: CHECKLIST (DATA FILTER) -->
+          <th>
+            <div class='th-header-cell'>
+              <div class='th-title' onclick='window.sortTable(11)'>CHECKLIST <span>↕</span></div>
+              <button class='th-filter-btn' onclick='window.toggleDropdown(event, ""popover_chk"")'>
+                <span class='btn-txt' id='btn_chk_label'>Período 📅</span>
+                <span class='arrow'>▼</span>
+              </button>
+              <div class='date-filter-popover' id='popover_chk' onclick='event.stopPropagation()'>
+                <div class='df-field'>
+                  <label>Data Inicial:</label>
+                  <input type='date' id='df_from_chk' onchange='window.applyFilters()'>
+                </div>
+                <div class='df-field'>
+                  <label>Data Final:</label>
+                  <input type='date' id='df_to_chk' onchange='window.applyFilters()'>
+                </div>
+                <div class='th-dropdown-divider'></div>
+                <label class='th-dropdown-item' style='padding: 2px 0;'>
+                  <input type='checkbox' id='chk_only_pending' onchange='window.toggleOnlyPending()'>
+                  Apenas Pendentes
+                </label>
+                <div class='df-actions'>
+                  <button type='button' class='df-btn' onclick='window.clearDateFilter(""chk"")'>Limpar</button>
+                </div>
+              </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody id='tableBody'></tbody>
+    </table>
+  </div>
+</div>
+"
+
+VAR _JSScript = "<script>
+(function() {
+  var rawData = [];
+  var filteredData = [];
+  var sortCol = -1;
+  var sortAsc = true;
+  var renderedCount = 0;
+  var BATCH_SIZE = 400;
+
+  var dropdownState = {
+    empresa: { items: [], selected: {}, all: true, query: '', placeholder: '🔍 Buscar empresa...' },
+    grupo: { items: [], selected: {}, all: true, query: '', placeholder: '🔍 Buscar grupo...' },
+    consultor: { items: [], selected: {}, all: true, query: '', placeholder: '🔍 Buscar consultor...' },
+    tipo: { items: [], selected: {}, all: true, query: '', placeholder: '🔍 Buscar tipo...' },
+    sla: { items: [], selected: {}, all: true, query: '', placeholder: '🔍 Buscar SLA...' }
+  };
+
+  function decodeDate(offsetStr) {
+    if (!offsetStr && offsetStr !== '0') return { fmt: '-', iso: '' };
+    var d = new Date(2024, 0, 1 + parseInt(offsetStr, 10));
+    var dd = String(d.getDate()).padStart(2, '0');
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var yyyy = d.getFullYear();
+    return {
+      fmt: dd + '/' + mm + '/' + yyyy,
+      iso: yyyy + '-' + mm + '-' + dd
+    };
+  }
+
+  function init() {
+    var rawEl = document.getElementById('rawOnboardingData');
+    var rawText = rawEl ? (rawEl.textContent || '') : '';
+    if (!rawText) return;
+
+    var rows = rawText.split('~');
+    rawData = new Array(rows.length);
+
+    var sets = {
+      empresa: {},
+      grupo: {},
+      consultor: {},
+      tipo: {},
+      sla: {}
+    };
+
+    for (var i = 0; i < rows.length; i++) {
+      var parts = rows[i].split('^');
+      var job = parts[0] || '';
+      var empresa = parts[1] || '';
+      var grupo = parts[2] || '-';
+      var consultor = parts[3] || '-';
+      var unidade = parts[4] || '-';
+      var cadObj = decodeDate(parts[5]);
+      var cnpj = parts[6] || '-';
+      var flags = parseInt(parts[7] || '0', 10);
+      var isProc = (flags & 1) !== 0;
+      var isAss = (flags & 2) !== 0;
+      var chkObj = decodeDate(parts[8]);
+      var hasChk = (chkObj.iso !== '');
+      var tipo = parts[9] || '-';
+      var sla = parts[10] || '-';
+
+      sets.empresa[empresa] = true;
+      sets.grupo[grupo] = true;
+      sets.consultor[consultor] = true;
+      sets.tipo[tipo] = true;
+      sets.sla[sla] = true;
+
+      rawData[i] = {
+        job: job,
+        empresa: empresa,
+        grupo: grupo,
+        consultor: consultor,
+        unidade: unidade,
+        cadFmt: cadObj.fmt,
+        cadIso: cadObj.iso,
+        cnpj: cnpj,
+        proc: isProc ? 'SIM' : 'NÃO',
+        ass: isAss ? 'SIM' : 'NÃO',
+        tipo: tipo,
+        sla: sla,
+        chkFmt: hasChk ? chkObj.fmt : 'Pendente',
+        chkIso: chkObj.iso,
+        searchIndex: (job + ' ' + empresa + ' ' + grupo + ' ' + consultor + ' ' + unidade + ' ' + cadObj.fmt + ' ' + cnpj + ' ' + tipo + ' ' + sla).toLowerCase()
+      };
+    }
+
+    var groupKeys = ['empresa', 'grupo', 'consultor', 'tipo', 'sla'];
+    for (var g = 0; g < groupKeys.length; g++) {
+      var grpName = groupKeys[g];
+      dropdownState[grpName].items = Object.keys(sets[grpName]).sort();
+      setupDropdownMenu(grpName);
+    }
+
+    filteredData = rawData.slice();
+    applyFilters();
+  }
+
+  function setupDropdownMenu(groupName) {
+    var menu = document.getElementById('dropdown_' + groupName);
+    if (!menu) return;
+
+    var state = dropdownState[groupName];
+    menu.innerHTML = '<div class=""th-dropdown-search-wrap"">' +
+      '<input type=""text"" class=""th-dropdown-search"" id=""search_' + groupName + '"" placeholder=""' + state.placeholder + '"" oninput=""window.filterDropdownList(\'' + groupName + '\', this.value)"" onclick=""event.stopPropagation()"">' +
+    '</div>' +
+    '<label class=""th-dropdown-item"">' +
+      '<input type=""checkbox"" id=""all_' + groupName + '"" checked onchange=""window.toggleSelectAll(\'' + groupName + '\', this)"">' +
+      '<strong>(Todos)</strong>' +
+    '</label>' +
+    '<div class=""th-dropdown-divider""></div>' +
+    '<div id=""list_' + groupName + '""></div>';
+
+    renderDropdownList(groupName);
+  }
+
+  function renderDropdownList(groupName) {
+    var listEl = document.getElementById('list_' + groupName);
+    if (!listEl) return;
+
+    var state = dropdownState[groupName];
+    var q = state.query.toLowerCase().trim();
+    var filtered = q ? state.items.filter(function(x) { return x.toLowerCase().indexOf(q) !== -1; }) : state.items;
+
+    var limit = Math.min(filtered.length, 300);
+    var html = '';
+
+    for (var i = 0; i < limit; i++) {
+      var opt = filtered[i];
+      var isChecked = state.all || (state.selected[opt] === true);
+      var safeOpt = opt.split('\""').join('&quot;');
+      var displayOpt = opt.length > 28 ? opt.substring(0, 28) + '...' : opt;
+      html += '<label class=""th-dropdown-item dropdown-item-wrap"" title=""' + safeOpt + '"">' +
+        '<input type=""checkbox"" class=""chk-' + groupName + '"" value=""' + safeOpt + '"" ' + (isChecked ? 'checked' : '') + ' onchange=""window.handleItemCheck(\'' + groupName + '\', this)"">' +
+        displayOpt +
+      '</label>';
+    }
+
+    if (filtered.length > limit) {
+      html += '<div style=""padding: 4px 8px; font-size: 11px; color: #64748B; text-align: center;"">+' + (filtered.length - limit) + ' itens (refine a busca)</div>';
+    }
+
+    listEl.innerHTML = html;
+
+    var masterCb = document.getElementById('all_' + groupName);
+    if (masterCb) {
+      masterCb.checked = state.all;
+    }
+  }
+
+  window.filterDropdownList = function(groupName, query) {
+    dropdownState[groupName].query = query;
+    renderDropdownList(groupName);
+  };
+
+  window.handleItemCheck = function(groupName, cb) {
+    var state = dropdownState[groupName];
+    var val = cb.value;
+
+    if (state.all) {
+      state.all = false;
+      state.selected = {};
+      for (var i = 0; i < state.items.length; i++) {
+        state.selected[state.items[i]] = true;
+      }
+    }
+
+    state.selected[val] = cb.checked;
+
+    var checkedCount = 0;
+    for (var k = 0; k < state.items.length; k++) {
+      if (state.selected[state.items[k]]) checkedCount++;
+    }
+
+    if (checkedCount === state.items.length) {
+      state.all = true;
+    }
+
+    updateDropdownBtnLabel(groupName, checkedCount);
+    window.applyFilters();
+  };
+
+  window.toggleSelectAll = function(groupName, masterCb) {
+    var state = dropdownState[groupName];
+    var q = state.query.toLowerCase().trim();
+
+    if (!q) {
+      state.all = masterCb.checked;
+      state.selected = {};
+      if (state.all) {
+        for (var i = 0; i < state.items.length; i++) {
+          state.selected[state.items[i]] = true;
+        }
+      }
+    } else {
+      state.all = false;
+      if (Object.keys(state.selected).length === 0) {
+        for (var j = 0; j < state.items.length; j++) {
+          state.selected[state.items[j]] = true;
+        }
+      }
+      var matches = state.items.filter(function(x) { return x.toLowerCase().indexOf(q) !== -1; });
+      for (var m = 0; m < matches.length; m++) {
+        state.selected[matches[m]] = masterCb.checked;
+      }
+    }
+
+    renderDropdownList(groupName);
+
+    var checkedCount = 0;
+    for (var k = 0; k < state.items.length; k++) {
+      if (state.all || state.selected[state.items[k]]) checkedCount++;
+    }
+    updateDropdownBtnLabel(groupName, checkedCount);
+    window.applyFilters();
+  };
+
+  function updateDropdownBtnLabel(groupName, count) {
+    var btn = document.getElementById('btn_' + groupName + '_label');
+    if (!btn) return;
+    var state = dropdownState[groupName];
+    if (state.all || count === state.items.length || count === 0) {
+      btn.textContent = 'Todos';
+    } else if (count === 1) {
+      var singleVal = '';
+      for (var k = 0; k < state.items.length; k++) {
+        if (state.selected[state.items[k]]) { singleVal = state.items[k]; break; }
+      }
+      btn.textContent = singleVal.length > 12 ? singleVal.substring(0, 12) + '...' : singleVal;
+    } else {
+      btn.textContent = '(' + count + ' sel.)';
+    }
+  }
+
+  /* Simple dropdowns (PROCURACAO, ASSESSMENT) */
+  window.toggleSelectAllSimple = function(group, masterCb) {
+    document.querySelectorAll('.chk-' + group).forEach(function(cb) {
+      cb.checked = masterCb.checked;
+    });
+    updateSimpleBtnLabel(group);
+    window.applyFilters();
+  };
+
+  window.checkGroupItemSimple = function(group) {
+    var cbs = document.querySelectorAll('.chk-' + group);
+    var allChecked = true;
+    cbs.forEach(function(cb) { if (!cb.checked) allChecked = false; });
+    var master = document.getElementById('all_' + group);
+    if (master) master.checked = allChecked;
+    updateSimpleBtnLabel(group);
+    window.applyFilters();
+  };
+
+  function updateSimpleBtnLabel(group) {
+    var btn = document.getElementById('btn_' + group + '_label');
+    if (!btn) return;
+    var checked = [];
+    document.querySelectorAll('.chk-' + group + ':checked').forEach(function(cb) {
+      checked.push(cb.value);
+    });
+
+    var total = document.querySelectorAll('.chk-' + group).length;
+    if (checked.length === total || checked.length === 0) {
+      btn.textContent = 'Todos';
+    } else if (checked.length === 1) {
+      btn.textContent = checked[0];
+    } else {
+      btn.textContent = '(' + checked.length + ' sel.)';
+    }
+  }
+
+  function createRowHTML(item) {
+    var procBadge = item.proc === 'SIM' ? '<span class=""badge b-green"">SIM</span>' : '<span class=""badge b-red"">NÃO</span>';
+    var assBadge = item.ass === 'SIM' ? '<span class=""badge b-green"">SIM</span>' : '<span class=""badge b-red"">NÃO</span>';
+    var chkBadge = item.chkFmt === 'Pendente' ? '<span class=""badge b-gray"">Pendente</span>' : '<span class=""badge b-blue"">' + item.chkFmt + '</span>';
+
+    var slaBadge = '<span class=""badge b-sla-neutral"">' + item.sla + '</span>';
+    var lowerSla = item.sla.toLowerCase();
+    if (lowerSla.indexOf('atrasou') !== -1 || lowerSla.indexOf('atrasad') !== -1 || lowerSla.indexOf('fora') !== -1) {
+      slaBadge = '<span class=""badge b-sla-delayed"">' + item.sla + '</span>';
+    } else if (lowerSla.indexOf('prazo') !== -1 || lowerSla.indexOf('ok') !== -1 || lowerSla.indexOf('conclu') !== -1) {
+      slaBadge = '<span class=""badge b-sla-ok"">' + item.sla + '</span>';
+    }
+
+    return '<tr>' +
+      '<td><span class=""badge-job"">' + item.job + '</span></td>' +
+      '<td class=""font-bold"" title=""' + item.empresa + '"">' + item.empresa + '</td>' +
+      '<td>' + item.grupo + '</td>' +
+      '<td>' + item.consultor + '</td>' +
+      '<td><span class=""badge-pill"">' + item.unidade + '</span></td>' +
+      '<td>' + item.cadFmt + '</td>' +
+      '<td class=""font-mono"">' + item.cnpj + '</td>' +
+      '<td>' + procBadge + '</td>' +
+      '<td>' + assBadge + '</td>' +
+      '<td><span class=""cell-tipo"" title=""' + item.tipo + '"">' + item.tipo + '</span></td>' +
+      '<td>' + slaBadge + '</td>' +
+      '<td>' + chkBadge + '</td>' +
+    '</tr>';
+  }
+
+  function renderTableBatch(reset) {
+    var tbody = document.getElementById('tableBody');
+    if (!tbody) return;
+
+    if (reset) {
+      tbody.innerHTML = '';
+      renderedCount = 0;
+    }
+
+    var total = filteredData.length;
+    if (renderedCount >= total) return;
+
+    var end = Math.min(renderedCount + BATCH_SIZE, total);
+    var htmlChunk = '';
+    for (var i = renderedCount; i < end; i++) {
+      htmlChunk += createRowHTML(filteredData[i]);
+    }
+
+    tbody.insertAdjacentHTML('beforeend', htmlChunk);
+    renderedCount = end;
+  }
+
+  window.handleScroll = function() {
+    var wrapper = document.getElementById('tableWrapper');
+    if (!wrapper) return;
+    if (wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 300) {
+      if (renderedCount < filteredData.length) {
+        renderTableBatch(false);
+      }
+    }
+  };
+
+  window.toggleDropdown = function(e, id) {
+    e.stopPropagation();
+    var target = document.getElementById(id);
+    if (!target) return;
+    var isShown = target.classList.contains('show');
+    
+    document.querySelectorAll('.th-dropdown-menu, .date-filter-popover').forEach(function(d) {
+      d.classList.remove('show');
+    });
+
+    if (!isShown) {
+      target.classList.add('show');
+      var searchInp = target.querySelector('.th-dropdown-search');
+      if (searchInp) {
+        setTimeout(function() { searchInp.focus(); }, 50);
+      }
+    }
+  };
+
+  window.clearDateFilter = function(colKey) {
+    var f = document.getElementById('df_from_' + colKey);
+    var t = document.getElementById('df_to_' + colKey);
+    if (f) f.value = '';
+    if (t) t.value = '';
+    if (colKey === 'chk') {
+      var op = document.getElementById('chk_only_pending');
+      if (op) op.checked = false;
+    }
+    window.applyFilters();
+  };
+
+  window.toggleOnlyPending = function() {
+    var onlyPending = document.getElementById('chk_only_pending') ? document.getElementById('chk_only_pending').checked : false;
+    if (onlyPending) {
+      var f = document.getElementById('df_from_chk');
+      var t = document.getElementById('df_to_chk');
+      if (f) f.value = '';
+      if (t) t.value = '';
+    }
+    window.applyFilters();
+  };
+
+  window.applyFilters = function() {
+    var globalQuery = (document.getElementById('globalSearch') ? document.getElementById('globalSearch').value : '').toLowerCase().trim();
+    
+    var colInputs = document.querySelectorAll('.th-search');
+    var colFilters = {};
+    colInputs.forEach(function(inp) {
+      var col = inp.getAttribute('data-col');
+      var val = inp.value.toLowerCase().trim();
+      if (val) colFilters[col] = val;
+    });
+
+    var cadFrom = document.getElementById('df_from_cad') ? document.getElementById('df_from_cad').value : '';
+    var cadTo = document.getElementById('df_to_cad') ? document.getElementById('df_to_cad').value : '';
+    var btnCad = document.getElementById('btn_cad_label');
+    if (btnCad) {
+      if (cadFrom || cadTo) {
+        btnCad.textContent = (cadFrom ? cadFrom.split('-')[2]+'/'+cadFrom.split('-')[1] : '...') + ' até ' + (cadTo ? cadTo.split('-')[2]+'/'+cadTo.split('-')[1] : '...');
+      } else {
+        btnCad.textContent = 'Período 📅';
+      }
+    }
+
+    var procAllowed = {};
+    document.querySelectorAll('.chk-proc:checked').forEach(function(cb) { procAllowed[cb.value] = true; });
+
+    var assAllowed = {};
+    document.querySelectorAll('.chk-ass:checked').forEach(function(cb) { assAllowed[cb.value] = true; });
+
+    var chkFrom = document.getElementById('df_from_chk') ? document.getElementById('df_from_chk').value : '';
+    var chkTo = document.getElementById('df_to_chk') ? document.getElementById('df_to_chk').value : '';
+    var onlyPending = document.getElementById('chk_only_pending') ? document.getElementById('chk_only_pending').checked : false;
+    var btnChk = document.getElementById('btn_chk_label');
+    if (btnChk) {
+      if (onlyPending) {
+        btnChk.textContent = 'Apenas Pendentes';
+      } else if (chkFrom || chkTo) {
+        btnChk.textContent = (chkFrom ? chkFrom.split('-')[2]+'/'+chkFrom.split('-')[1] : '...') + ' até ' + (chkTo ? chkTo.split('-')[2]+'/'+chkTo.split('-')[1] : '...');
+      } else {
+        btnChk.textContent = 'Período 📅';
+      }
+    }
+
+    filteredData = rawData.filter(function(row) {
+      if (globalQuery && row.searchIndex.indexOf(globalQuery) === -1) return false;
+
+      if (colFilters['0'] && row.job.toLowerCase().indexOf(colFilters['0']) === -1) return false;
+      if (colFilters['4'] && row.unidade.toLowerCase().indexOf(colFilters['4']) === -1) return false;
+      if (colFilters['6'] && row.cnpj.toLowerCase().indexOf(colFilters['6']) === -1) return false;
+
+      if (!dropdownState.empresa.all && !dropdownState.empresa.selected[row.empresa]) return false;
+      if (!dropdownState.grupo.all && !dropdownState.grupo.selected[row.grupo]) return false;
+      if (!dropdownState.consultor.all && !dropdownState.consultor.selected[row.consultor]) return false;
+      if (!dropdownState.tipo.all && !dropdownState.tipo.selected[row.tipo]) return false;
+      if (!dropdownState.sla.all && !dropdownState.sla.selected[row.sla]) return false;
+
+      if (cadFrom && (!row.cadIso || row.cadIso < cadFrom)) return false;
+      if (cadTo && (!row.cadIso || row.cadIso > cadTo)) return false;
+
+      if (!procAllowed[row.proc]) return false;
+      if (!assAllowed[row.ass]) return false;
+
+      if (onlyPending) {
+        if (row.chkFmt !== 'Pendente') return false;
+      } else {
+        if (chkFrom && (!row.chkIso || row.chkIso < chkFrom)) return false;
+        if (chkTo && (!row.chkIso || row.chkIso > chkTo)) return false;
+      }
+
+      return true;
+    });
+
+    if (sortCol >= 0) {
+      sortData();
+    }
+
+    renderTableBatch(true);
+    updateCounter();
+  };
+
+  window.sortTable = function(colIndex) {
+    if (sortCol === colIndex) {
+      sortAsc = !sortAsc;
+    } else {
+      sortCol = colIndex;
+      sortAsc = true;
+    }
+    sortData();
+    renderTableBatch(true);
+  };
+
+  function sortData() {
+    var keyMap = ['job', 'empresa', 'grupo', 'consultor', 'unidade', 'cadIso', 'cnpj', 'proc', 'ass', 'tipo', 'sla', 'chkIso'];
+    var key = keyMap[sortCol];
+    if (!key) return;
+
+    filteredData.sort(function(a, b) {
+      var valA = a[key] || '';
+      var valB = b[key] || '';
+      if (valA < valB) return sortAsc ? -1 : 1;
+      if (valA > valB) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }
+
+  window.copiarTabela = function() {
+    var btn = document.getElementById('btnCopiar');
+    var originalHTML = btn.innerHTML;
+    
+    var headers = ['JOB', 'EMPRESA', 'GRUPO', 'CONSULTOR', 'UNIDADE', 'CADASTRO', 'CNPJ', 'PROCURACAO', 'ASSESSMENT', 'TIPO', 'STATUS SLA', 'CHECKLIST'];
+    var tsvRows = [headers.join('\t')];
+
+    for (var i = 0; i < filteredData.length; i++) {
+      var item = filteredData[i];
+      var row = [
+        item.job,
+        item.empresa,
+        item.grupo,
+        item.consultor,
+        item.unidade,
+        item.cadFmt,
+        item.cnpj,
+        item.proc,
+        item.ass,
+        item.tipo,
+        item.sla,
+        item.chkFmt
+      ];
+      tsvRows.push(row.join('\t'));
+    }
+
+    var textToCopy = tsvRows.join('\n');
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(textToCopy).then(function() {
+        btn.innerHTML = '✔ Copiado (' + filteredData.length + ' linhas)';
+        btn.style.borderColor = '#10B981';
+        btn.style.color = '#34D399';
+        setTimeout(function() {
+          btn.innerHTML = originalHTML;
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 3000);
+      }).catch(function() {
+        fallbackCopy(textToCopy, btn, originalHTML);
+      });
+    } else {
+      fallbackCopy(textToCopy, btn, originalHTML);
+    }
+  };
+
+  function fallbackCopy(textToCopy, btn, originalHTML) {
+    try {
+      var textArea = document.createElement('textarea');
+      textArea.value = textToCopy;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      var successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        btn.innerHTML = '✔ Copiado (' + filteredData.length + ' linhas)';
+        btn.style.borderColor = '#10B981';
+        btn.style.color = '#34D399';
+        setTimeout(function() {
+          btn.innerHTML = originalHTML;
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 3000);
+      } else {
+        throw new Error('Falha ao copiar');
+      }
+    } catch(err) {
+      btn.innerHTML = '❌ Erro ao copiar';
+      setTimeout(function() { btn.innerHTML = originalHTML; }, 3000);
+    }
+  }
+
+  window.resetFilters = function() {
+    if (document.getElementById('globalSearch')) document.getElementById('globalSearch').value = '';
+    document.querySelectorAll('.th-search').forEach(function(inp) { inp.value = ''; });
+    document.querySelectorAll('.th-dropdown-search').forEach(function(inp) { inp.value = ''; });
+    
+    var groups = ['empresa', 'grupo', 'consultor', 'tipo', 'sla'];
+    for (var g = 0; g < groups.length; g++) {
+      var grp = groups[g];
+      if (dropdownState[grp]) {
+        dropdownState[grp].all = true;
+        dropdownState[grp].selected = {};
+        dropdownState[grp].query = '';
+        renderDropdownList(grp);
+        updateDropdownBtnLabel(grp, dropdownState[grp].items.length);
+      }
+    }
+
+    document.querySelectorAll('.df-field input[type="date"]').forEach(function(inp) { inp.value = ''; });
+    document.querySelectorAll('.chk-proc, .chk-ass').forEach(function(cb) { cb.checked = true; });
+    var masterProc = document.getElementById('all_proc');
+    if (masterProc) masterProc.checked = true;
+    var masterAss = document.getElementById('all_ass');
+    if (masterAss) masterAss.checked = true;
+    var op = document.getElementById('chk_only_pending');
+    if (op) op.checked = false;
+    
+    applyFilters();
+  };
+
+  function updateCounter() {
+    var total = filteredData.length;
+    if (document.getElementById('visibleCount')) document.getElementById('visibleCount').textContent = total;
+    if (document.getElementById('totalCount')) document.getElementById('totalCount').textContent = rawData.length;
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.th-header-cell')) {
+      document.querySelectorAll('.th-dropdown-menu, .date-filter-popover').forEach(function(d) {
+        d.classList.remove('show');
+      });
+    }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    setTimeout(init, 30);
+  }
+})();
+</script>"
+
+RETURN
+    _CSS & _HeaderHTML & _DataHolderHTML & _JSScript

@@ -1,0 +1,10 @@
+﻿
+vw_powerbi_relatorio_aprovacao[JOB] vw_powerbi_relatorio_aprovacao[NOME] vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL
+                                                                         _ENCONTRADO]                                  
+----------------------------------- ------------------------------------ ----------------------------------------------
+86730-FTX                           SANDRO RENATO BARBOZA DE OLIVEIRA                                                  
+86730-FTX                           SANDRO RENATO BARBOZA DE OLIVEIRA    0                                             
+86730-FTX                           SANDRO RENATO BARBOZA DE OLIVEIRA    14511,2235                                    
+86730-FTX                           SANDRO RENATO BARBOZA DE OLIVEIRA    26824,47                                      
+
+

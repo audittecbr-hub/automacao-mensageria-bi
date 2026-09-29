@@ -1,0 +1,22 @@
+html+='<tr style=""animation-delay:'+(i*0.03)+'s"">';
+			        html+='<td style=""color:var(--text-main);font-weight:600"">'+(r.job||'-')+'</td>';
+			        html+='<td style=""color:var(--text-main)"">'+(r.dataCadastro||'-')+'</td>';
+			        html+='<td><span class=""nome"">'+r.nome+'</span></td>';
+			        html+='<td><span class=""cnpj"">'+r.cnpj+'</span></td>';
+			        html+='<td><span style=""color:var(--gold);font-weight:600;font-size:10px;text-transform:uppercase;"">'+(r.categoria||'-')+'</span></td>';
+			        html+='<td class=""valor num"">'+fmtBRL(r.valor)+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main);font-weight:600"">'+(r.dataPagamento||'-')+'</td>';
+			        html+='<td><span class=""unidade-code"">'+(r.unidade||'')+'</span></td>';
+			        html+='<td style=""color:var(--text-main);font-size:11px"">'+(r.nomeUnidade||'')+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main)"">'+(pU ? String(pU).replace('.', ',')+'%' : '-')+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main);font-weight:600;"">'+(pH ? String(pH).replace('.', ',')+'%' : '0,00%')+'</td>';
+			        html+='<td class=""num"" style=""color:var(--text-main)"">'+(r.valorUnit ? fmtBRL(r.valorUnit) : '-')+'</td>';
+			        html+='<td class=""num""><div class=""status-btn-group"">';
+			        html+='<div class=""status-btn '+(st==='Pendente'?'active-p':'')+'"" title=""Pendente"" onclick=""setStatus(\''+r.id+'\',\'Pendente\')"">P</div>';
+			        html+='<div class=""status-btn '+(st==='Aprovado'?'active-a':'')+'"" title=""Aprovado"" onclick=""setStatus(\''+r.id+'\',\'Aprovado\')"">A</div>';
+			        html+='<div class=""status-btn '+(st==='Reprovado'?'active-r':'')+'"" title=""Reprovado"" onclick=""setStatus(\''+r.id+'\',\'Reprovado\')"">R</div>';
+			        if (st==='Reprovado' && r.motivo) {
+			            html+='<span class=""icon-eye"" title=""Ver motivo"" onclick=""lerMotivo(\''+r.id+'\')"">👁️</span>';
+			        }
+			        html+='</div></td>';
+			        html+='</tr>';

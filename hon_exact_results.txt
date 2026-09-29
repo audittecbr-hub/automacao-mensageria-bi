@@ -1,0 +1,9 @@
+﻿
+
+[Hon_Enc_RT_MovRange]  : 416291603,737446
+[Hon_Enc_All_MovRange] : 696983976,041067
+[Hon_Apr_RT_MovRange]  : 
+[Hon_Apr_All_MovRange] : 
+
+
+

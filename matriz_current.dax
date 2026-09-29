@@ -1,0 +1,1034 @@
+﻿
+
+VAR _css = "<style>
+:root { 
+    --bg: #0b0f19; 
+    --card: rgba(18, 24, 38, 0.6); 
+    --border: rgba(255, 255, 255, 0.08); 
+    --accent: #e2b35a; /* Executive Gold */
+    --accent-glow: rgba(226, 179, 90, 0.15);
+    --text-main: #f1f5f9; 
+    --text-sec: #94a3b8; 
+    --text-muted: #475569;
+    --green: #10b981;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --orange: #f97316;
+    --font: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+}
+html, body { margin: 0; padding: 0; box-sizing: border-box; width: 100vw; height: 100vh; overflow: hidden !important; font-family: var(--font); background: var(--bg); }
+* { box-sizing:border-box; }
+.painel { background: radial-gradient(circle at top left, rgba(226,179,90,0.05), transparent 50%), var(--bg); height: calc(100vh - 20px); margin: 10px; border-radius: 20px; padding: 32px; display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 150px; position: relative; z-index: 99999; gap: 20px; padding-bottom: 10px; }
+.title-container { display: flex; flex-direction: column; gap: 8px; }
+.title { font-size: 28px; font-weight: 300; color: var(--text-main); letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.title::before { content: ''; width: 4px; height: 28px; background: var(--accent); border-radius: 4px; box-shadow: 0 0 12px var(--accent-glow); }
+.subtitle { font-size: 16px; color: var(--text-sec); letter-spacing: 1px; font-weight: 500; text-transform: uppercase; margin-left: 16px; }
+.summary-cards { display: grid; grid-template-columns: repeat(7, 1fr); gap: 15px; margin-bottom: 30px; position: relative; z-index: 1; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
+.card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; background: var(--accent); opacity: 0.05; border-radius: 50%; filter: blur(20px); transform: translate(30%, -30%); }
+.card-title { font-size: 17px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; display:flex; align-items:center; gap:8px;}
+.card-value { font-size: 30px; font-weight: 700; color: var(--text-main); font-family: var(--font); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-indicator { font-size: 15px; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+.btn-kpi-detalhar { position: absolute; bottom: 12px; right: 12px; background: transparent; border: 1px solid var(--border); color: var(--text-sec); font-size: 10px; font-weight: 600; padding: 4px 8px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-family: var(--font); }
+.btn-kpi-detalhar:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+.ind-up { color: var(--green); background: rgba(16, 185, 129, 0.1); }
+.ind-down { color: var(--red); background: rgba(239, 68, 68, 0.1); }
+.ind-neutral { color: var(--orange); background: rgba(249, 115, 22, 0.1); }
+.table-wrapper { flex: 1; overflow-y: auto; padding-right: 12px; margin-right: -12px; position: relative; z-index: 1;}
+.table-wrapper::-webkit-scrollbar { width: 6px; }
+.table-wrapper::-webkit-scrollbar-track { background: transparent; }
+.table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.tabela { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.tabela th { position: sticky; top: 0; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(10px); color: var(--text-sec); font-size: 22px; font-weight: 500; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 16px; text-align: right; border-bottom: 1px solid var(--border); z-index: 10; }
+.tabela th:first-child { text-align: left; }
+.tabela td { background: var(--card); padding: 24px 20px; font-size: 22px; font-weight: 500; font-family: var(--font); font-variant-numeric: tabular-nums; letter-spacing: -0.5px; color: var(--text-main); text-align: right; border-top: 1px solid transparent; border-bottom: 1px solid transparent; transition: all 0.2s ease; cursor: default; white-space: nowrap; }
+.tabela td:first-child { font-family: var(--font); font-weight: 500; text-align: left; border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 1px solid transparent; }
+.tabela td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid transparent; color: var(--accent); font-weight: 700; font-size: 26px; letter-spacing: -1px; font-weight: 600; }
+.tabela tr:hover td { background: rgba(226, 179, 90, 0.05); border-color: var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: scale(1.002); }
+.tabela tr:hover td:first-child { border-left: 3px solid var(--accent); padding-left: 13px; color: var(--accent); }
+.progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #fcd34d); border-radius: 2px; }
+
+/* DROPDOWN CUSTOMIZADO */
+.dropdown-container { position: relative; display: inline-flex; align-items: center; margin-left: 15px; }
+.dropdown-btn { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font); font-size: 16px; font-weight: 600; text-transform: uppercase; cursor: pointer; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; width: 240px; outline: none; transition: 0.2s; }
+.dropdown-btn:hover { border-color: var(--accent); background: rgba(226, 179, 90, 0.05); }
+.dropdown-menu { display: none; position: absolute; top: calc(100% + 5px); right: 0; width: 280px; background: #121826; border: 1px solid var(--accent); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 9999; flex-direction: column; }
+.dropdown-menu.show { display: flex; animation: fadeIn 0.2s ease; }
+.dropdown-search { padding: 10px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); border-top-left-radius: 8px; border-top-right-radius: 8px; }
+.dropdown-search input { width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--text-main); font-family: var(--font); font-size: 14px; padding: 8px 10px; outline: none; transition: 0.2s; }
+.dropdown-search input:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); }
+.dropdown-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; padding: 5px 0; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+.dropdown-list::-webkit-scrollbar { width: 6px; }
+.dropdown-list::-webkit-scrollbar-track { background: transparent; }
+.dropdown-list::-webkit-scrollbar-thumb { background: rgba(226, 179, 90, 0.4); border-radius: 4px; }
+.dropdown-list::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+.dropdown-item { padding: 10px 15px; font-size: 16px; color: var(--text-sec); cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; border-left: 2px solid transparent; text-align: left; }
+.dropdown-item:hover { background: rgba(226, 179, 90, 0.1); color: var(--text-main); border-left-color: var(--accent); }
+.dropdown-item.selected { color: var(--accent); font-weight: 700; background: rgba(226, 179, 90, 0.05); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+#prodBtnText { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; text-align: left; }
+</style>"
+
+VAR _datas_meses = DISTINCT(SELECTCOLUMNS(FILTER(Calendario, Calendario[Date] >= DATE(2026, 6, 1) && Calendario[Date] <= DATE(2026, 12, 31)), "AnoMes", FORMAT(Calendario[Date], "yyyy-MM")))
+VAR _mesAtual = IF(DAY(TODAY()) < 10, FORMAT(EDATE(TODAY(), -1), "yyyy-MM"), FORMAT(TODAY(), "yyyy-MM"))
+
+VAR _lista_produtos = 
+    FILTER(
+        DISTINCT(
+            SELECTCOLUMNS(ALLNOBLANKROW(vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO]), "FiltroProduto", [NOME_TRIBUTO])
+        ),
+        [FiltroProduto] <> ""
+    )
+VAR _datas_produtos = CROSSJOIN(_datas_meses, _lista_produtos)
+
+/* GERADOR DAS OPÇÕES PARA O DROPDOWN CUSTOMIZADO */
+
+/* GERADOR DAS OPÇÕES PARA O DROPDOWN DE MESES */
+VAR _opcoes_meses = 
+    CONCATENATEX(
+        _datas_meses, 
+        "<label class='dropdown-item' style='display:flex; align-items:center; gap:8px; cursor:pointer;'><input type='checkbox' class='mes-checkbox' value='" & [AnoMes] & "' onchange='atualizarMesBtnText(); filtrarTudo();' checked> " & [AnoMes] & "</label>", 
+        "",
+        [AnoMes], ASC
+    )
+
+VAR _opcoes_produtos = 
+    CONCATENATEX(
+        _lista_produtos, 
+        "<div class='dropdown-item' onclick=""selecionarProduto(this, '" & SUBSTITUTE([FiltroProduto], "'", "\'") & "')"">" & [FiltroProduto] & "</div>", 
+        ""
+    )
+
+/* ================== EXTRAÇÃO DE DADOS ================== */
+VAR _dadosAprovados = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE(SUMX(vw_powerbi_honorarios_iniciais, vw_powerbi_honorarios_iniciais[RF_VALOR] + 0), vw_powerbi_honorarios_iniciais[REGIONAL_DEFAULT] = 1, FORMAT(vw_powerbi_honorarios_iniciais[DATA_CADASTRO], "yyyy-MM") = _d, vw_powerbi_honorarios_iniciais[PRODUTO] = _p) + 0
+        VAR _vSP = CALCULATE(SUMX(vw_powerbi_honorarios_iniciais, vw_powerbi_honorarios_iniciais[RF_VALOR] + 0), vw_powerbi_honorarios_iniciais[REGIONAL_DEFAULT] = 2, FORMAT(vw_powerbi_honorarios_iniciais[DATA_CADASTRO], "yyyy-MM") = _d, vw_powerbi_honorarios_iniciais[PRODUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE(SUMX(vw_powerbi_honorarios_iniciais, vw_powerbi_honorarios_iniciais[RF_VALOR] + 0), vw_powerbi_honorarios_iniciais[REGIONAL_DEFAULT] = 3, FORMAT(vw_powerbi_honorarios_iniciais[DATA_CADASTRO], "yyyy-MM") = _d, vw_powerbi_honorarios_iniciais[PRODUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE(SUMX(vw_powerbi_honorarios_iniciais, vw_powerbi_honorarios_iniciais[RF_VALOR] + 0), vw_powerbi_honorarios_iniciais[REGIONAL_DEFAULT] = 14, FORMAT(vw_powerbi_honorarios_iniciais[DATA_CADASTRO], "yyyy-MM") = _d, vw_powerbi_honorarios_iniciais[PRODUTO] = _p) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-aprov' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-aprov' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-aprov' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-aprov' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosCaixa = 
+    CONCATENATEX(
+        _datas_meses,
+        VAR _d = [AnoMes]
+        VAR _vSul = CALCULATE(SUMX(metas, metas[valor_conta] + 0), cnpj[PrgNome] = "Regional Sul", FORMAT(Calendario[Date], "yyyy-MM") = _d) + 0
+        VAR _vSP = CALCULATE(SUMX(metas, metas[valor_conta] + 0), cnpj[PrgNome] = "Regional Sudeste", FORMAT(Calendario[Date], "yyyy-MM") = _d) + 0
+        VAR _vSudeste = CALCULATE(SUMX(metas, metas[valor_conta] + 0), cnpj[PrgNome] = "Regional Sudeste 2", FORMAT(Calendario[Date], "yyyy-MM") = _d) + 0
+        VAR _vNNCO = CALCULATE(SUMX(metas, metas[valor_conta] + 0), cnpj[PrgNome] = "Regional NNCO", FORMAT(Calendario[Date], "yyyy-MM") = _d) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-caixa' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-data='" & _d & "'></span>" &
+            "<span class='dado-caixa' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-data='" & _d & "'></span>" &
+            "<span class='dado-caixa' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-data='" & _d & "'></span>" &
+            "<span class='dado-caixa' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-data='" & _d & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosEncontrados = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSul_sr = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP_sr = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste_sr = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO_sr = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras_sr = CALCULATE([Honorários encontrados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _somaDia_sr = _vSul_sr + _vSP_sr + _vSudeste_sr + _vNNCO_sr + _vOutras_sr
+        RETURN IF(_somaDia_sr > 0,
+            "<span class='dado-enc' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-valor-sr='" & FORMAT(_vSul_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-enc' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-valor-sr='" & FORMAT(_vSP_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-enc' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-valor-sr='" & FORMAT(_vSudeste_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-enc' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-valor-sr='" & FORMAT(_vNNCO_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-enc' data-regional='Outras' data-valor='" & FORMAT(_vOutras, "0.00") & "' data-valor-sr='" & FORMAT(_vOutras_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosCreditoSemHon = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE(SUMX(vw_powerbi_regionais_hono_encontrados, vw_powerbi_regionais_hono_encontrados[sem_honorario] + 0), vw_powerbi_regionais_hono_encontrados[REGIONAL_DEFAULT] = 1, FORMAT(vw_powerbi_regionais_hono_encontrados[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_encontrados[PRODUTO] = _p) + 0
+        VAR _vSP = CALCULATE(SUMX(vw_powerbi_regionais_hono_encontrados, vw_powerbi_regionais_hono_encontrados[sem_honorario] + 0), vw_powerbi_regionais_hono_encontrados[REGIONAL_DEFAULT] = 2, FORMAT(vw_powerbi_regionais_hono_encontrados[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_encontrados[PRODUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE(SUMX(vw_powerbi_regionais_hono_encontrados, vw_powerbi_regionais_hono_encontrados[sem_honorario] + 0), vw_powerbi_regionais_hono_encontrados[REGIONAL_DEFAULT] = 3, FORMAT(vw_powerbi_regionais_hono_encontrados[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_encontrados[PRODUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE(SUMX(vw_powerbi_regionais_hono_encontrados, vw_powerbi_regionais_hono_encontrados[sem_honorario] + 0), vw_powerbi_regionais_hono_encontrados[REGIONAL_DEFAULT] = 14, FORMAT(vw_powerbi_regionais_hono_encontrados[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_encontrados[PRODUTO] = _p) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-cred-sem' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-cred-sem' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-cred-sem' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-cred-sem' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosApresentados = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSul_sr = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP_sr = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste_sr = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO_sr = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras_sr = CALCULATE([Honorários apresentados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _somaDia_sr = _vSul_sr + _vSP_sr + _vSudeste_sr + _vNNCO_sr + _vOutras_sr
+        RETURN IF(_somaDia_sr > 0,
+            "<span class='dado-apres' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-valor-sr='" & FORMAT(_vSul_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-apres' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-valor-sr='" & FORMAT(_vSP_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-apres' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-valor-sr='" & FORMAT(_vSudeste_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-apres' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-valor-sr='" & FORMAT(_vNNCO_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-apres' data-regional='Outras' data-valor='" & FORMAT(_vOutras, "0.00") & "' data-valor-sr='" & FORMAT(_vOutras_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosRetificadosMain = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE(SUMX(vw_powerbi_regionais_hono_restituicao, vw_powerbi_regionais_hono_restituicao[VALOR_FINAL] + 0), vw_powerbi_regionais_hono_restituicao[REGIONAL_DEFAULT] = 1, FORMAT(vw_powerbi_regionais_hono_restituicao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_restituicao[PRODUTO] = _p) + 0
+        VAR _vSP = CALCULATE(SUMX(vw_powerbi_regionais_hono_restituicao, vw_powerbi_regionais_hono_restituicao[VALOR_FINAL] + 0), vw_powerbi_regionais_hono_restituicao[REGIONAL_DEFAULT] = 2, FORMAT(vw_powerbi_regionais_hono_restituicao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_restituicao[PRODUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE(SUMX(vw_powerbi_regionais_hono_restituicao, vw_powerbi_regionais_hono_restituicao[VALOR_FINAL] + 0), vw_powerbi_regionais_hono_restituicao[REGIONAL_DEFAULT] = 3, FORMAT(vw_powerbi_regionais_hono_restituicao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_restituicao[PRODUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE(SUMX(vw_powerbi_regionais_hono_restituicao, vw_powerbi_regionais_hono_restituicao[VALOR_FINAL] + 0), vw_powerbi_regionais_hono_restituicao[REGIONAL_DEFAULT] = 14, FORMAT(vw_powerbi_regionais_hono_restituicao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_restituicao[PRODUTO] = _p) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-retif-main' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-retif-main' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-retif-main' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-retif-main' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+
+VAR _dadosReunioes = 
+    CONCATENATEX(
+        _datas_meses,
+        VAR _d = [AnoMes]
+        VAR _DiasReais = DISTINCT(SELECTCOLUMNS(FILTER(vw_powerbi_agendas_rt, FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM") = _d), "DataDia", FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM-dd")))
+        VAR _vSul = SUMX(
+            _DiasReais,
+            VAR _dia = [DataDia]
+            RETURN CALCULATE(DISTINCTCOUNT(vw_powerbi_agendas_rt[CLIENTE]), vw_powerbi_agendas_rt[REGIONAL] = 1, FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM-dd") = _dia)
+        ) + 0
+        VAR _vSP = SUMX(
+            _DiasReais,
+            VAR _dia = [DataDia]
+            RETURN CALCULATE(DISTINCTCOUNT(vw_powerbi_agendas_rt[CLIENTE]), vw_powerbi_agendas_rt[REGIONAL] = 2, FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM-dd") = _dia)
+        ) + 0
+        VAR _vSudeste = SUMX(
+            _DiasReais,
+            VAR _dia = [DataDia]
+            RETURN CALCULATE(DISTINCTCOUNT(vw_powerbi_agendas_rt[CLIENTE]), vw_powerbi_agendas_rt[REGIONAL] = 3, FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM-dd") = _dia)
+        ) + 0
+        VAR _vNNCO = SUMX(
+            _DiasReais,
+            VAR _dia = [DataDia]
+            RETURN CALCULATE(DISTINCTCOUNT(vw_powerbi_agendas_rt[CLIENTE]), vw_powerbi_agendas_rt[REGIONAL] = 14, FORMAT(vw_powerbi_agendas_rt[DATA], "yyyy-MM-dd") = _dia)
+        ) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-reuniao' data-regional='Regional Sul' data-valor='" & _vSul & "' data-data='" & _d & "'></span>" &
+            "<span class='dado-reuniao' data-regional='Regional Sudeste' data-valor='" & _vSP & "' data-data='" & _d & "'></span>" &
+            "<span class='dado-reuniao' data-regional='Regional Sudeste 2' data-valor='" & _vSudeste & "' data-data='" & _d & "'></span>" &
+            "<span class='dado-reuniao' data-regional='Regional NNCO' data-valor='" & _vNNCO & "' data-data='" & _d & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosNaoAprovados = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSul_sr = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP_sr = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste_sr = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO_sr = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras_sr = CALCULATE([Honorário negociação], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _somaDia_sr = _vSul_sr + _vSP_sr + _vSudeste_sr + _vNNCO_sr + _vOutras_sr
+        RETURN IF(_somaDia_sr > 0,
+            "<span class='dado-nao-aprov' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-valor-sr='" & FORMAT(_vSul_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprov' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-valor-sr='" & FORMAT(_vSP_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprov' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-valor-sr='" & FORMAT(_vSudeste_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprov' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-valor-sr='" & FORMAT(_vNNCO_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprov' data-regional='Outras' data-valor='" & FORMAT(_vOutras, "0.00") & "' data-valor-sr='" & FORMAT(_vOutras_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosPerdidos = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSul_sr = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP_sr = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste_sr = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO_sr = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras_sr = CALCULATE([Honorários perdidos], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _somaDia_sr = _vSul_sr + _vSP_sr + _vSudeste_sr + _vNNCO_sr + _vOutras_sr
+        RETURN IF(_somaDia_sr > 0,
+            "<span class='dado-perdidos' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-valor-sr='" & FORMAT(_vSul_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-perdidos' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-valor-sr='" & FORMAT(_vSP_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-perdidos' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-valor-sr='" & FORMAT(_vSudeste_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-perdidos' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-valor-sr='" & FORMAT(_vNNCO_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-perdidos' data-regional='Outras' data-valor='" & FORMAT(_vOutras, "0.00") & "' data-valor-sr='" & FORMAT(_vOutras_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+
+VAR _dadosNaoAprovadosReal = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSul_sr = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP_sr = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste_sr = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO_sr = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras_sr = CALCULATE([Honorários não aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _somaDia_sr = _vSul_sr + _vSP_sr + _vSudeste_sr + _vNNCO_sr + _vOutras_sr
+        RETURN IF(_somaDia_sr > 0,
+            "<span class='dado-nao-aprovados-real' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-valor-sr='" & FORMAT(_vSul_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprovados-real' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-valor-sr='" & FORMAT(_vSP_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprovados-real' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-valor-sr='" & FORMAT(_vSudeste_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprovados-real' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-valor-sr='" & FORMAT(_vNNCO_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-nao-aprovados-real' data-regional='Outras' data-valor='" & FORMAT(_vOutras, "0.00") & "' data-valor-sr='" & FORMAT(_vOutras_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosAprovadosTotal = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12), vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSul_sr = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sul", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSP_sr = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vSudeste_sr = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional Sudeste 2", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vNNCO_sr = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Regional NNCO", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _vOutras_sr = CALCULATE([Honorários aprovados], vw_powerbi_relatorio_aprovacao[Regional] = "Outras", FORMAT(vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR], "yyyy-MM") = _d, vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] = _p) + 0
+        VAR _somaDia_sr = _vSul_sr + _vSP_sr + _vSudeste_sr + _vNNCO_sr + _vOutras_sr
+        RETURN IF(_somaDia_sr > 0,
+            "<span class='dado-aprov-total' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-valor-sr='" & FORMAT(_vSul_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-aprov-total' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-valor-sr='" & FORMAT(_vSP_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-aprov-total' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-valor-sr='" & FORMAT(_vSudeste_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-aprov-total' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-valor-sr='" & FORMAT(_vNNCO_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-aprov-total' data-regional='Outras' data-valor='" & FORMAT(_vOutras, "0.00") & "' data-valor-sr='" & FORMAT(_vOutras_sr, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosCompensacao = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE(SUMX(vw_powerbi_regionais_hono_compensacao, vw_powerbi_regionais_hono_compensacao[valor_final] + 0), vw_powerbi_regionais_hono_compensacao[REGIONAL_DEFAULT] = 1, FORMAT(vw_powerbi_regionais_hono_compensacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_compensacao[PRODUTO] = _p) + 0
+        VAR _vSP = CALCULATE(SUMX(vw_powerbi_regionais_hono_compensacao, vw_powerbi_regionais_hono_compensacao[valor_final] + 0), vw_powerbi_regionais_hono_compensacao[REGIONAL_DEFAULT] = 2, FORMAT(vw_powerbi_regionais_hono_compensacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_compensacao[PRODUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE(SUMX(vw_powerbi_regionais_hono_compensacao, vw_powerbi_regionais_hono_compensacao[valor_final] + 0), vw_powerbi_regionais_hono_compensacao[REGIONAL_DEFAULT] = 3, FORMAT(vw_powerbi_regionais_hono_compensacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_compensacao[PRODUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE(SUMX(vw_powerbi_regionais_hono_compensacao, vw_powerbi_regionais_hono_compensacao[valor_final] + 0), vw_powerbi_regionais_hono_compensacao[REGIONAL_DEFAULT] = 14, FORMAT(vw_powerbi_regionais_hono_compensacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_compensacao[PRODUTO] = _p) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-comp' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-comp' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-comp' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-comp' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosRetificacao = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE(SUMX(vw_powerbi_regionais_hono_retificacao, vw_powerbi_regionais_hono_retificacao[valor_final] + 0), vw_powerbi_regionais_hono_retificacao[REGIONAL_DEFAULT] = 1, FORMAT(vw_powerbi_regionais_hono_retificacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_retificacao[PRODUTO] = _p) + 0
+        VAR _vSP = CALCULATE(SUMX(vw_powerbi_regionais_hono_retificacao, vw_powerbi_regionais_hono_retificacao[valor_final] + 0), vw_powerbi_regionais_hono_retificacao[REGIONAL_DEFAULT] = 2, FORMAT(vw_powerbi_regionais_hono_retificacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_retificacao[PRODUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE(SUMX(vw_powerbi_regionais_hono_retificacao, vw_powerbi_regionais_hono_retificacao[valor_final] + 0), vw_powerbi_regionais_hono_retificacao[REGIONAL_DEFAULT] = 3, FORMAT(vw_powerbi_regionais_hono_retificacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_retificacao[PRODUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE(SUMX(vw_powerbi_regionais_hono_retificacao, vw_powerbi_regionais_hono_retificacao[valor_final] + 0), vw_powerbi_regionais_hono_retificacao[REGIONAL_DEFAULT] = 14, FORMAT(vw_powerbi_regionais_hono_retificacao[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_retificacao[PRODUTO] = _p) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-retif' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-retif' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-retif' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-retif' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+VAR _dadosAjuizamento = 
+    CONCATENATEX(
+        _datas_produtos,
+        VAR _d = [AnoMes]
+        VAR _p = [FiltroProduto]
+        VAR _anoSelecionado = VALUE(LEFT(_d, 4))
+        VAR _mesSelecionado = VALUE(RIGHT(_d, 2))
+        VAR _dataUltimoDiaMes = EOMONTH(DATE(_anoSelecionado, _mesSelecionado, 1), 0)
+        VAR _isCurrentMonth = IF(_anoSelecionado = YEAR(TODAY()) && _mesSelecionado = MONTH(TODAY()), TRUE(), FALSE())
+        VAR _dataFinal = IF(_isCurrentMonth, TODAY(), _dataUltimoDiaMes)
+        VAR _dataInicial = _dataFinal - 60
+
+        VAR _vSul = CALCULATE(SUMX(vw_powerbi_regionais_hono_ajuizamento, vw_powerbi_regionais_hono_ajuizamento[valor_final] + 0), vw_powerbi_regionais_hono_ajuizamento[REGIONAL_DEFAULT] = 1, FORMAT(vw_powerbi_regionais_hono_ajuizamento[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_ajuizamento[PRODUTO] = _p) + 0
+        VAR _vSP = CALCULATE(SUMX(vw_powerbi_regionais_hono_ajuizamento, vw_powerbi_regionais_hono_ajuizamento[valor_final] + 0), vw_powerbi_regionais_hono_ajuizamento[REGIONAL_DEFAULT] = 2, FORMAT(vw_powerbi_regionais_hono_ajuizamento[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_ajuizamento[PRODUTO] = _p) + 0
+        VAR _vSudeste = CALCULATE(SUMX(vw_powerbi_regionais_hono_ajuizamento, vw_powerbi_regionais_hono_ajuizamento[valor_final] + 0), vw_powerbi_regionais_hono_ajuizamento[REGIONAL_DEFAULT] = 3, FORMAT(vw_powerbi_regionais_hono_ajuizamento[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_ajuizamento[PRODUTO] = _p) + 0
+        VAR _vNNCO = CALCULATE(SUMX(vw_powerbi_regionais_hono_ajuizamento, vw_powerbi_regionais_hono_ajuizamento[valor_final] + 0), vw_powerbi_regionais_hono_ajuizamento[REGIONAL_DEFAULT] = 14, FORMAT(vw_powerbi_regionais_hono_ajuizamento[DATA], "yyyy-MM") = _d, vw_powerbi_regionais_hono_ajuizamento[PRODUTO] = _p) + 0
+        VAR _somaDia = _vSul + _vSP + _vSudeste + _vNNCO
+        RETURN IF(_somaDia > 0,
+            "<span class='dado-ajuiz' data-regional='Regional Sul' data-valor='" & FORMAT(_vSul, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-ajuiz' data-regional='Regional Sudeste' data-valor='" & FORMAT(_vSP, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-ajuiz' data-regional='Regional Sudeste 2' data-valor='" & FORMAT(_vSudeste, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>" &
+            "<span class='dado-ajuiz' data-regional='Regional NNCO' data-valor='" & FORMAT(_vNNCO, "0.00") & "' data-data='" & _d & "' data-produto='" & _p & "'></span>",
+            ""
+        ),
+        ""
+    )
+
+/* ================== ESTRUTURA DAS LINHAS DA TABELA ================== */
+VAR _linha0 = 
+    "<tr onmouseover=""this.style.background='rgba(59,130,246,0.05)'"" onmouseout=""this.style.background='transparent'"">" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--blue); margin-bottom:4px;'>&#128269; Honorários Encontrados</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Honorários identificados na operação</div></td>" &
+        "<td id='enc-sul' style='color:var(--blue);'>R$ 0,00</td>" &
+        "<td id='enc-sp' style='color:var(--blue);'>R$ 0,00</td>" &
+        "<td id='enc-sd' style='color:var(--blue);'>R$ 0,00</td>" &
+        "<td id='enc-nn' style='color:var(--blue);'>R$ 0,00</td>" &
+        "<td id='enc-total' style='color:var(--blue); font-weight:700; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+VAR _linha1 = 
+    "<tr onmouseover=""this.style.background='rgba(255,255,255,0.03)'"" onmouseout=""this.style.background='transparent'"">" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--text-main); margin-bottom:4px;'>&#128188; Honorários Apresentados</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Na etapa Reunião Técnica</div></td>" &
+        "<td id='apres-sul'>R$ 0,00</td>" &
+        "<td id='apres-sp'>R$ 0,00</td>" &
+        "<td id='apres-sd'>R$ 0,00</td>" &
+        "<td id='apres-nn'>R$ 0,00</td>" &
+        "<td id='apres-total' style='color:var(--accent); font-weight:700; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+VAR _linha_retificados_main = 
+    "<tr onmouseover=""this.style.background='rgba(249,115,22,0.05)'"" onmouseout=""this.style.background='transparent'"">" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--orange); margin-bottom:4px;'>&#128221; Honorários Retificados</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Na etapa de Retificação</div></td>" &
+        "<td id='retif-main-sul' style='color:var(--orange);'>R$ 0,00</td>" &
+        "<td id='retif-main-sp' style='color:var(--orange);'>R$ 0,00</td>" &
+        "<td id='retif-main-sd' style='color:var(--orange);'>R$ 0,00</td>" &
+        "<td id='retif-main-nn' style='color:var(--orange);'>R$ 0,00</td>" &
+        "<td id='retif-main-total' style='color:var(--orange); font-weight:700; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+VAR _linha2 = 
+    "<tr onclick=""toggleDetails('detalhe-aprovados')"" style='cursor:pointer;' onmouseover=""this.style.background='rgba(255,255,255,0.03)'"" onmouseout=""this.style.background='transparent'"">" &
+        "<td><div style='display:flex; align-items:flex-start; gap:8px;'><span id='icon-aprovados' style='font-size:16px; color:var(--text-muted); margin-top:4px; transition:0.2s;'>&#9654;</span><div><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--text-main); margin-bottom:4px;'>&#10004;&#65039; Honorários Aprovados</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Após retificar</div></div></div></td>" &
+        "<td id='ap-sul'>R$ 0,00<div class='progress-container'><div class='progress-bar' style='width: 0%;'></div></div></td>" &
+        "<td id='ap-sp'>R$ 0,00<div class='progress-container'><div class='progress-bar' style='width: 0%;'></div></div></td>" &
+        "<td id='ap-sd'>R$ 0,00<div class='progress-container'><div class='progress-bar' style='width: 0%;'></div></div></td>" &
+        "<td id='ap-nn'>R$ 0,00<div class='progress-container'><div class='progress-bar' style='width: 0%;'></div></div></td>" &
+        "<td id='ap-total' style='color:var(--accent); font-weight:700; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+VAR _linha2_detalhes = 
+    "<tr class='detalhe-aprovados' style='display:none; background: rgba(255,255,255,0.015);'>" &
+        "<td colspan='6' style='padding-left: 40px; font-size:11px !important; font-weight: normal !important; color:var(--text-sec) !important; text-align:left !important; border-left: 2px solid var(--accent); padding-top:12px; padding-bottom:12px;'><div style='display:flex; align-items:center; gap:12px; flex-wrap:wrap;'><span style='color:var(--text-muted); font-weight:600; text-transform:uppercase;'>Legenda de Pontuação:</span><span style='background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.02);'>Honorários Iniciais = <b style='color:var(--accent);'>4</b></span><span style='background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.02);'>Honorários Compensação = <b style='color:var(--accent);'>3</b></span><span style='background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.02);'>Honorários Restituição = <b style='color:var(--accent);'>2</b></span><span style='background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.02);'>Honorários Ajuizamento = <b style='color:var(--accent);'>1</b></span></div></td>" &
+    "</tr>" &
+    "<tr class='detalhe-aprovados' style='display:none; background: rgba(255,255,255,0.015);'>" &
+        "<td style='padding-left: 40px; font-size:12px; color:var(--text-sec); border-left: 2px solid var(--accent);'><div style='display:flex; align-items:center; gap:8px;'><span style='font-size:14px; color:var(--accent);'>&#128269;</span> Honorários Iniciais</div></td>" &
+        "<td id='hi-sul' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hi-sp' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hi-sd' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hi-nn' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hi-total' style='font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px; color:var(--accent); font-weight:600;'>R$ 0,00</td>" &
+    "</tr>" &
+    "<tr class='detalhe-aprovados' style='display:none; background: rgba(255,255,255,0.015);'>" &
+        "<td style='padding-left: 40px; font-size:12px; color:var(--text-sec); border-left: 2px solid var(--accent);'><div style='display:flex; align-items:center; gap:8px;'><span style='font-size:14px; color:var(--accent);'>&#128269;</span> Honorários Compensação</div></td>" &
+        "<td id='hc-sul' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hc-sp' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hc-sd' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hc-nn' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hc-total' style='font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px; color:var(--accent); font-weight:600;'>R$ 0,00</td>" &
+    "</tr>" &
+    "<tr class='detalhe-aprovados' style='display:none; background: rgba(255,255,255,0.015);'>" &
+        "<td style='padding-left: 40px; font-size:12px; color:var(--text-sec); border-left: 2px solid var(--accent);'><div style='display:flex; align-items:center; gap:8px;'><span style='font-size:14px; color:var(--accent);'>&#128269;</span> Honorários Restituição</div></td>" &
+        "<td id='hr-sul' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hr-sp' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hr-sd' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hr-nn' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='hr-total' style='font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px; color:var(--accent); font-weight:600;'>R$ 0,00</td>" &
+    "</tr>" &
+    "<tr class='detalhe-aprovados' style='display:none; background: rgba(255,255,255,0.015);'>" &
+        "<td style='padding-left: 40px; font-size:12px; color:var(--text-sec); border-left: 2px solid var(--accent); border-bottom-left-radius: 8px;'><div style='display:flex; align-items:center; gap:8px;'><span style='font-size:14px; color:var(--accent);'>&#128269;</span> Honorários Ajuizamento</div></td>" &
+        "<td id='ha-sul' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='ha-sp' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='ha-sd' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='ha-nn' style='font-size:12px; color:var(--text-sec);'>R$ 0,00</td>" &
+        "<td id='ha-total' style='font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px; color:var(--accent); font-weight:600; border-bottom-right-radius: 8px;'>R$ 0,00</td>" &
+    "</tr>"
+
+VAR _linha_nao_aprovados = 
+    "<tr onmouseover=""this.style.background='rgba(239,68,68,0.05)'"" onmouseout=""this.style.background='transparent'"">" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--red); margin-bottom:4px;'>&#9888;&#65039; Honorários em Negociação</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Após Reunião Técnica</div></td>" &
+        "<td id='naprov-sul' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='naprov-sp' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='naprov-sd' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='naprov-nn' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='naprov-total' style='color:var(--red); font-weight:700; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+VAR _linha3 = 
+    "<tr onmouseover=""this.style.background='rgba(239,68,68,0.05)'"" onmouseout=""this.style.background='transparent'"">" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--text-main); margin-bottom:4px;'>&#10060; Honorários Perdidos</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Enviados para o fim</div></td>" &
+        "<td id='perdidos-sul' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='perdidos-sp' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='perdidos-sd' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='perdidos-nn' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='perdidos-total' style='color:var(--red); font-weight:700; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+
+VAR _linha3_nao_aprovados = 
+    "<tr onmouseover=""this.style.background='rgba(239,68,68,0.05)'"" onmouseout=""this.style.background='transparent'"">" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--text-main); margin-bottom:4px;'>&#9888;&#65039; Honorários Não Aprovados</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Reunião Técnica para o fim</div></td>" &
+        "<td id='nareal-sul' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='nareal-sp' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='nareal-sd' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='nareal-nn' style='color:var(--red);'>R$ 0,00</td>" &
+        "<td id='nareal-total' style='color:var(--red); font-weight:700; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+VAR _linha4 = 
+    "<tr>" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--accent); margin-bottom:4px;'>&#128176; Honorários Recebidos (Caixa)</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Valores faturados</div></td>" &
+        "<td id='cx-sul' style='color:var(--accent); font-weight:600;'>R$ 0,00</td>" &
+        "<td id='cx-sp' style='color:var(--accent); font-weight:600;'>R$ 0,00</td>" &
+        "<td id='cx-sd' style='color:var(--accent); font-weight:600;'>R$ 0,00</td>" &
+        "<td id='cx-nn' style='color:var(--accent); font-weight:600;'>R$ 0,00</td>" &
+        "<td id='cx-total' style='color:var(--accent); font-weight:800; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>R$ 0,00</td>" &
+    "</tr>"
+
+
+VAR _linha5 = 
+    "<tr>" &
+        "<td><div style='font-size:18px; font-weight:600; letter-spacing: 0.5px; color:var(--green); margin-bottom:4px;'>&#128197; Reuniões Realizadas</div><div style='font-size:13px; color:var(--text-muted); font-weight:400; text-transform: uppercase; letter-spacing: 0.5px;'>Reuniões com clientes distintos por dia</div></td>" &
+        "<td id='reuniao-sul' style='color:var(--green); font-weight:600;'>0</td>" &
+        "<td id='reuniao-sp' style='color:var(--green); font-weight:600;'>0</td>" &
+        "<td id='reuniao-sd' style='color:var(--green); font-weight:600;'>0</td>" &
+        "<td id='reuniao-nn' style='color:var(--green); font-weight:600;'>0</td>" &
+        "<td id='reuniao-total' style='color:var(--green); font-weight:800; font-size:24px; font-weight:600; font-variant-numeric: tabular-nums; letter-spacing: -1px;'>0</td>" &
+    "</tr>"
+
+VAR _html = 
+    "<html><head><meta charset='UTF-8'>" & _css & "</head><body>" &
+    "<div class='painel'>" &
+        "<div class='header'>" &
+            "<div class='title-container'>" &
+                "<div class='title'>PERFORMANCE DAS REGIONAIS DO <b>GRUPO STUDIO</b></div>" &
+                "<div class='subtitle'>Honorários Totais</div>" &
+            "</div>" &
+            "<div style='display:flex; align-items:center; gap:20px;'>" &
+                "<div class='dropdown-container' style='margin-left:0;'>" &
+                     "<button class='dropdown-btn' onclick='toggleMesDropdown()' style='width: 200px;'><span style='color:var(--accent); margin-right:8px;'>&#128197;</span> <span id='mesBtnText'>TODOS (MÊS)</span> <span style='font-size:16px; margin-left:auto;'>&#9660;</span></button>" &
+                     "<div class='dropdown-menu' id='mesMenu' style='width: 200px;'>" &
+                         "<div class='dropdown-list' style='padding:10px; max-height: 250px; overflow-y: auto;'>" &
+                             "<label class='dropdown-item' style='display:flex; align-items:center; gap:8px; cursor:pointer; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:4px;'><input type='checkbox' id='selectAllMeses' onchange='toggleAllMeses(this); filtrarTudo();' checked> <strong>SELECIONAR TODOS</strong></label>" &
+                             _opcoes_meses &
+                         "</div>" &
+                     "</div>" &
+                  "</div>" &
+                
+                			                "<div class='switch-rt' onclick='clickToggleRT()' style='display:flex; align-items:center; gap:10px; cursor:pointer; color:var(--orange); font-weight:700; font-size:14px; user-select:none; margin-right: 12px; letter-spacing:0.5px;'>REGRA RT 12/06" &
+                    "<div style='position:relative; width:44px; height:24px; border-radius:24px; border:2px solid var(--orange); display:flex; align-items:center; pointer-events:none;'>" &
+                        "<span id='sliderBg' style='position:absolute; top:0; left:0; right:0; bottom:0; border-radius:24px; background-color:var(--orange); transition:0.3s;'></span>" &
+                        "<span id='sliderThumb' style='position:absolute; width:16px; height:16px; left:2px; background-color:#fff; border-radius:50%; transition:transform 0.3s, background-color 0.3s; transform:translateX(20px); box-shadow: 0 0 5px rgba(255,165,0,0.5);'></span>" &
+                    "</div>" &
+                "</div>" &
+                "<div class='dropdown-container'>" &
+                    "<button class='dropdown-btn' onclick='toggleProdDropdown()'><span id='prodBtnText'>TODOS PRODUTOS</span> <span style='font-size:16px; margin-left:4px;'>&#9660;</span></button>" &
+                    "<div class='dropdown-menu' id='prodMenu'>" &
+                        "<div class='dropdown-search'><input type='text' id='prodSearch' onkeyup='filtrarProdMenu()' placeholder='Pesquisar produto...'></div>" &
+                        "<div class='dropdown-list'>" &
+                            "<div class='dropdown-item selected' onclick=""selecionarProduto(this, '')"">TODOS PRODUTOS</div>" &
+                            _opcoes_produtos &
+                        "</div>" &
+                    "</div>" &
+                    "<input type='hidden' id='global-produto' value=''>" &
+                "</div>" &
+
+                "<div style='text-align:right; margin-right:10px; margin-left: 20px;'>" &
+                    "<div style='font-size:12px; color:var(--text-sec); font-weight:600;'>GRUPO STUDIO</div>" &
+                    "<div style='font-size:16px; color:var(--text-muted);'>Atualizado agora</div>" &
+                "</div>" &
+                "<div style='width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, var(--accent), #b48530); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:20px; box-shadow: 0 10px 20px var(--accent-glow);'>GS</div>" &
+            "</div>" &
+        "</div>" &
+        
+        "<div class='summary-cards'>" &
+            "<div class='card'>" &
+                "<div class='card-title'>&#128176; Honorários - Crédito sem Hon</div>" &
+                "<div class='card-value' id='card-credito-sem-hon'>R$ 0,00</div>" &
+                "<div><span class='card-indicator ind-neutral'>&#8212; 0%</span> <span style='font-size:11px;color:var(--text-muted);'>vs mês ant.</span></div>" &
+                "<button class='btn-kpi-detalhar'>DETALHAR</button>" &
+            "</div>" &
+            "<div class='card'>" &
+                "<div class='card-title'>&#128269; Honorários Encontrados</div>" &
+                "<div class='card-value' id='card-encontrados'>R$ 0,00</div>" &
+                "<div><span class='card-indicator ind-up'>&#8593; 0%</span> <span style='font-size:11px;color:var(--text-muted);'>vs mês ant.</span></div>" &
+                "<button class='btn-kpi-detalhar'>DETALHAR</button>" &
+            "</div>" &
+            "<div class='card'>" &
+                "<div class='card-title'>&#128188; Honorários Apresentados</div>" &
+                "<div class='card-value' id='card-apresentados'>R$ 0,00</div>" &
+                "<div><span class='card-indicator ind-up'>&#8593; 0%</span> <span style='font-size:11px;color:var(--text-muted);'>vs mês ant.</span></div>" &
+                "<button class='btn-kpi-detalhar'>DETALHAR</button>" &
+            "</div>" &
+            
+            "<div class='card'>" &
+                "<div class='card-title'>&#10004;&#65039; Honorários Aprovados</div>" &
+                "<div class='card-value' id='card-aprov'>R$ 0,00</div>" &
+                "<div><span class='card-indicator ind-up'>&#8593; 0%</span> <span style='font-size:11px;color:var(--text-muted);'>vs mês ant.</span></div>" &
+                "<button class='btn-kpi-detalhar'>DETALHAR</button>" &
+            "</div>" &
+            "<div class='card'>" &
+                "<div class='card-title'>&#9888;&#65039; Honorários em Negociação</div>" &
+                "<div class='card-value' id='card-nao-aprovados'>R$ 0,00</div>" &
+                "<div><span class='card-indicator ind-down'>&#8595; 0%</span> <span style='font-size:11px;color:var(--text-muted);'>vs mês ant.</span></div>" &
+                "<button class='btn-kpi-detalhar'>DETALHAR</button>" &
+            "</div>" &
+            "<div class='card'>" &
+                "<div class='card-title'>&#10060; Honorários Perdidos</div>" &
+                "<div class='card-value' id='card-perdidos'>R$ 0,00</div>" &
+                "<div><span class='card-indicator ind-down'>&#8595; 0%</span> <span style='font-size:11px;color:var(--text-muted);'>vs mês ant.</span></div>" &
+                "<button class='btn-kpi-detalhar'>DETALHAR</button>" &
+            "</div>" &
+            "<div class='card'>" &
+                "<div class='card-title'>&#9888;&#65039; Honorários Não Aprovados</div>" &
+                "<div class='card-value' id='card-nao-aprovados-real'>R$ 0,00</div>" &
+                "<div><span class='card-indicator ind-down'>&#8595; 0%</span> <span style='font-size:11px;color:var(--text-muted);'>vs mês ant.</span></div>" &
+                "<button class='btn-kpi-detalhar'>DETALHAR</button>" &
+            "</div>" &
+        "</div>" &
+        "<div class='table-wrapper'>" &
+            "<table class='tabela'>" &
+                "<thead>" &
+                    "<tr>" &
+                        "<th>Pontuação por Ranking</th>" &
+                        "<th id='th-sul' data-reg='sul'><div style='display:inline-flex; align-items:center; gap:12px;'><img src='https://1drv.ms/i/c/434db18effbef75d/IQRKadnAcVfsQ5yvivcKPVZWASjm_xQT78xvHnH7DwNVyTs?width=766&height=750' style='width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent); box-shadow: 0 6px 15px rgba(0,0,0,0.4);'><div style='display:flex; flex-direction:column; align-items:flex-start; gap:4px;'><div style='display:flex; align-items:center; gap:6px;'><span id='badge-sul' style='background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:14px; font-weight:700;'>-º</span><span style='font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:1px;'>Sul</span></div><div id='pts-sul' style='font-size:12px; color:var(--text-sec); font-weight:500; text-transform:uppercase; letter-spacing:1px;'>0 pts</div></div></div></th>" &
+                        "<th id='th-sp' data-reg='sp'><div style='display:inline-flex; align-items:center; gap:12px;'><img src='https://1drv.ms/i/c/434db18effbef75d/IQQ4YkrhK6wQSrHc3RbIOqVVAUZKDYXFWQ0B28zx3MX8v9E?width=1024&height=1016' style='width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent); box-shadow: 0 6px 15px rgba(0,0,0,0.4);'><div style='display:flex; flex-direction:column; align-items:flex-start; gap:4px;'><div style='display:flex; align-items:center; gap:6px;'><span id='badge-sp' style='background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:14px; font-weight:700;'>-º</span><span style='font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:1px;'>Sudeste</span></div><div id='pts-sp' style='font-size:12px; color:var(--text-sec); font-weight:500; text-transform:uppercase; letter-spacing:1px;'>0 pts</div></div></div></th>" &
+                        "<th id='th-sd' data-reg='sd'><div style='display:inline-flex; align-items:center; gap:12px;'><img src='https://1drv.ms/i/c/434db18effbef75d/IQQlL7rXeQ9JRY6Ro7TpyUh1ARJ00PqB1-Z0X_ZgqALnV3U' style='width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent); box-shadow: 0 6px 15px rgba(0,0,0,0.4);'><div style='display:flex; flex-direction:column; align-items:flex-start; gap:4px;'><div style='display:flex; align-items:center; gap:6px;'><span id='badge-sd' style='background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:14px; font-weight:700;'>-º</span><span style='font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:1px;'>Sudeste 2</span></div><div id='pts-sd' style='font-size:12px; color:var(--text-sec); font-weight:500; text-transform:uppercase; letter-spacing:1px;'>0 pts</div></div></div></th>" &
+                        "<th id='th-nn' data-reg='nn'><div style='display:inline-flex; align-items:center; gap:12px;'><img src='https://1drv.ms/i/c/434db18effbef75d/IQTo81BJwgdNQaWcwS-06qprATiDsMRnekZrdrv_bVbYx_4?width=1600&height=1066' style='width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent); box-shadow: 0 6px 15px rgba(0,0,0,0.4);'><div style='display:flex; flex-direction:column; align-items:flex-start; gap:4px;'><div style='display:flex; align-items:center; gap:6px;'><span id='badge-nn' style='background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-size:14px; font-weight:700;'>-º</span><span style='font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:1px;'>NNCO</span></div><div id='pts-nn' style='font-size:12px; color:var(--text-sec); font-weight:500; text-transform:uppercase; letter-spacing:1px;'>0 pts</div></div></div></th>" &
+                        "<th><div style='display:inline-flex; align-items:center; gap:12px;'><img src='data:image/jpeg;base64,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' style='width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent); box-shadow: 0 6px 15px rgba(0,0,0,0.4);'><span style='font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-sec);'>Total Geral</span></div></th>" &
+                    "</tr>" &
+                "</thead>" &
+                "<tbody>" &
+                    _linha0 & _linha1 &  _linha2 & _linha2_detalhes & _linha_nao_aprovados & _linha3 & _linha3_nao_aprovados & _linha5 &
+                "</tbody>" &
+            "</table>" &
+        "</div>" &
+    "</div>" &
+    "<div style='display:none;' id='dados-enc-container'>" & _dadosEncontrados & "</div>" &
+    "<div style='display:none;' id='dados-cred-sem-container'>" & _dadosCreditoSemHon & "</div>" &
+    "<div style='display:none;' id='dados-apres-container'>" & _dadosApresentados & "</div>" &
+    "<div style='display:none;' id='dados-perdidos-container'>" & _dadosPerdidos & "</div>" &
+    "<div style='display:none;' id='dados-nao-aprovados-real-container'>" & _dadosNaoAprovadosReal & "</div>" &
+    "<div style='display:none;' id='dados-aprov-container'>" & _dadosAprovados & "</div>" &
+    "<div style='display:none;' id='dados-aprov-total-container'>" & _dadosAprovadosTotal & "</div>" &
+    "<div style='display:none;' id='dados-comp-container'>" & _dadosCompensacao & "</div>" &
+    "<div style='display:none;' id='dados-retif-container'>" & _dadosRetificacao & "</div>" &
+    "<div style='display:none;' id='dados-ajuiz-container'>" & _dadosAjuizamento & "</div>" &
+    "<div style='display:none;' id='dados-caixa-container'>" & _dadosCaixa & "</div>" &
+    "<div style='display:none;' id='dados-restituicao-container'>" & _dadosRetificadosMain & "</div>" &
+    "<div style='display:none;' id='dados-nao-aprov-container'>" & _dadosNaoAprovados & "</div>" &
+    "<div style='display:none;' id='dados-reuniao-container'>" & _dadosReunioes & "</div>" &
+    "<script>" &
+    "function toggleMesDropdown() {" &
+          "var menu = document.getElementById('mesMenu');" &
+          "menu.classList.toggle('show');" &
+      "}" &
+      "function toggleAllMeses(source) {" &
+          "var checkboxes = document.querySelectorAll('.mes-checkbox');" &
+          "for(var i=0; i<checkboxes.length; i++) { checkboxes[i].checked = source.checked; }" &
+          "atualizarMesBtnText();" &
+      "}" &
+      "function atualizarMesBtnText() {" &
+          "var checkboxes = document.querySelectorAll('.mes-checkbox');" &
+          "var checkedBoxes = document.querySelectorAll('.mes-checkbox:checked');" &
+          "var btnText = 'TODOS (MÊS)';" &
+          "if(checkedBoxes.length === 0) btnText = 'NENHUM MÊS';" &
+          "else if(checkedBoxes.length < checkboxes.length) btnText = checkedBoxes.length + ' MESES';" &
+          "document.getElementById('mesBtnText').innerText = btnText;" &
+          "var allCb = document.getElementById('selectAllMeses');" &
+          "if(allCb) allCb.checked = (checkedBoxes.length === checkboxes.length);" &
+      "}" &
+
+      "window.rtRuleActive = true;" &
+      "function clickToggleRT() {" &
+          "window.rtRuleActive = !window.rtRuleActive;" &
+          "var thumb = document.getElementById('sliderThumb');" &
+          "var bg = document.getElementById('sliderBg');" &
+          "if(window.rtRuleActive) { thumb.style.transform = 'translateX(20px)'; thumb.style.backgroundColor = '#fff'; bg.style.backgroundColor = 'var(--orange)'; }" &
+          "else { thumb.style.transform = 'translateX(0px)'; thumb.style.backgroundColor = 'var(--orange)'; bg.style.backgroundColor = 'transparent'; }" &
+          "filtrarTudo();" &
+      "}" &
+      "function toggleProdDropdown() {" &
+        "var menu = document.getElementById('prodMenu');" &
+        "menu.classList.toggle('show');" &
+        "if(menu.classList.contains('show')) { document.getElementById('prodSearch').focus(); }" &
+    "}" &
+    "function filtrarProdMenu() {" &
+        "var filter = document.getElementById('prodSearch').value.toUpperCase();" &
+        "var items = document.querySelectorAll('.dropdown-item');" &
+        "for(var i=0; i<items.length; i++) {" &
+            "var text = items[i].innerText.toUpperCase();" &
+            "if(text.indexOf(filter) > -1) { items[i].style.display = ''; } else { items[i].style.display = 'none'; }" &
+        "}" &
+    "}" &
+    "function selecionarProduto(el, valor) {" &
+        "document.getElementById('global-produto').value = valor;" &
+        "var btnText = valor === '' ? 'TODOS PRODUTOS' : valor;" &
+        "document.getElementById('prodBtnText').innerText = btnText;" &
+        "var items = document.querySelectorAll('.dropdown-item');" &
+        "for(var i=0; i<items.length; i++) { items[i].classList.remove('selected'); }" &
+        "el.classList.add('selected');" &
+        "document.getElementById('prodMenu').classList.remove('show');" &
+        "filtrarTudo();" &
+    "}" &
+    "document.addEventListener('click', function(e) {" &
+        "if (!e.target.closest('.dropdown-container')) {
+              var mesMenu = document.getElementById('mesMenu');
+              if (mesMenu && mesMenu.classList.contains('show')) { mesMenu.classList.remove('show'); }" &
+            "var menu = document.getElementById('prodMenu');" &
+            "if (menu && menu.classList.contains('show')) { menu.classList.remove('show'); }" &
+        "}" &
+    "});" &
+    "function formatarMoeda(valor) {" &
+        "return 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });" &
+    "}" &
+    "function formatarMilhoes(valor) {" &
+        "if(valor === 0) return 'R$ 0,00';" &
+        "if(valor < 1000000) return formatarMoeda(valor);" &
+        "if(valor < 1000000000) return 'R$ ' + (valor / 1000000).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';" &
+        "if(valor < 1000000000000) return 'R$ ' + (valor / 1000000000).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' Bi';" &
+        "return 'R$ ' + (valor / 1000000000000).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' Tri';" &
+    "}" &
+    "function calcularSoma(classe) {" &
+          "var spans = document.getElementsByClassName(classe);" &
+          "var soma = { 'Regional Sul': 0, 'Regional Sudeste': 0, 'Regional Sudeste 2': 0, 'Regional NNCO': 0, 'Total': 0 };" &
+          "var prodBox = document.getElementById('global-produto');" &
+          "var prod = prodBox ? prodBox.value : '';" &
+          "var regraAtiva = typeof window.rtRuleActive !== 'undefined' ? window.rtRuleActive : true;" &
+          "var checkedBoxes = document.querySelectorAll('.mes-checkbox:checked');" &
+          "var selectedMeses = {};" &
+          "for(var k=0; k<checkedBoxes.length; k++) { selectedMeses[checkedBoxes[k].value] = true; }" &
+          "for(var i=0; i<spans.length; i++) {" &
+              "var d = spans[i].getAttribute('data-data');" &
+              "var pass = true;" &
+              "if(!selectedMeses[d]) pass = false;" &
+              "var p = spans[i].getAttribute('data-produto');" &
+              "if(classe !== 'dado-caixa' && classe !== 'dado-reuniao' && prod !== '' && p !== prod) pass = false;" &
+              "if(pass) {" &
+                  "var vStr = '0';" &
+                  "if(regraAtiva && spans[i].hasAttribute('data-valor')) vStr = spans[i].getAttribute('data-valor');" &
+                  "else if(!regraAtiva && spans[i].hasAttribute('data-valor-sr')) vStr = spans[i].getAttribute('data-valor-sr');" &
+                  "else vStr = spans[i].getAttribute('data-valor') || '0';" &
+                  "var v = parseFloat(vStr.replace(',', '.')) || 0;" &
+                  "var r = spans[i].getAttribute('data-regional');" &
+                  "if(soma[r] !== undefined) { soma[r] += v; }" &
+                  "soma['Total'] += v;" &
+              "}" &
+          "}" &
+          "return soma;" &
+      "}" &
+      "function filtrarTudo() {" &
+        "/* CALCULAR CAIXA */" &
+        "var sCx = calcularSoma('dado-caixa');" &
+        			        			        			        			        			        			        "/* CALCULAR CREDITO SEM HON */" &
+        "var sCredSem = calcularSoma('dado-cred-sem');" &
+        "document.getElementById('card-credito-sem-hon').innerText = formatarMilhoes(sCredSem['Total']);" &
+        "/* CALCULAR ENCONTRADOS */" &
+        "var sEn = calcularSoma('dado-enc');" &
+        "document.getElementById('enc-sul').innerText = formatarMoeda(sEn['Regional Sul']);" &
+        "document.getElementById('enc-sp').innerText = formatarMoeda(sEn['Regional Sudeste']);" &
+        "document.getElementById('enc-sd').innerText = formatarMoeda(sEn['Regional Sudeste 2']);" &
+        "document.getElementById('enc-nn').innerText = formatarMoeda(sEn['Regional NNCO']);" &
+        "document.getElementById('enc-total').innerText = formatarMoeda(sEn['Total']);" &
+        "document.getElementById('card-encontrados').innerText = formatarMilhoes(sEn['Total']);" &
+        
+        "/* CALCULAR NÃO APROVADOS */" &
+        "var sNAprov = calcularSoma('dado-nao-aprov');" &
+        "document.getElementById('naprov-sul').innerText = formatarMoeda(sNAprov['Regional Sul']);" &
+        "document.getElementById('naprov-sp').innerText = formatarMoeda(sNAprov['Regional Sudeste']);" &
+        "document.getElementById('naprov-sd').innerText = formatarMoeda(sNAprov['Regional Sudeste 2']);" &
+        "document.getElementById('naprov-nn').innerText = formatarMoeda(sNAprov['Regional NNCO']);" &
+        "document.getElementById('naprov-total').innerText = formatarMoeda(sNAprov['Total']);" &
+        "document.getElementById('card-nao-aprovados').innerText = formatarMilhoes(sNAprov['Total']);" &
+        "/* CALCULAR APROVADOS (INICIAIS + COMP + RETIF + AJUIZ) */" &
+        "var sApTotal = calcularSoma('dado-aprov-total');" &
+        "var sAp = calcularSoma('dado-aprov');" &
+        "var sComp = calcularSoma('dado-comp');" &
+        "var sRetif = calcularSoma('dado-retif');" &
+        "var sAjuiz = calcularSoma('dado-ajuiz');" &
+        "var tSul = sApTotal['Regional Sul'];" &
+        "var tSP = sApTotal['Regional Sudeste'];" &
+        "var tSD = sApTotal['Regional Sudeste 2'];" &
+        "var tNN = sApTotal['Regional NNCO'];" &
+        "var tGeral = sApTotal['Total'];" &
+        "document.getElementById('ap-sul').innerText = formatarMoeda(tSul);" &
+        "document.getElementById('ap-sp').innerText = formatarMoeda(tSP);" &
+        "document.getElementById('ap-sd').innerText = formatarMoeda(tSD);" &
+        "document.getElementById('ap-nn').innerText = formatarMoeda(tNN);" &
+        "document.getElementById('ap-total').innerText = formatarMoeda(tGeral);" &
+        "document.getElementById('card-aprov').innerText = formatarMilhoes(tGeral);" &
+        
+        "/* CALCULAR PONTUAÇÃO E ORDENAÇÃO SEGURO SEM AFETAR A LEGENDA */" &
+        "var ptsSul = tSul * 2;" &
+        "var ptsSP = tSP * 2;" &
+        "var ptsSD = tSD * 2;" &
+        "var ptsNN = tNN * 2;" &
+
+        "var ranks = [" &
+            "{ id: 'sul', pts: ptsSul }," &
+            "{ id: 'sp', pts: ptsSP }," &
+            "{ id: 'sd', pts: ptsSD }," &
+            "{ id: 'nn', pts: ptsNN }" &
+        "];" &
+        "ranks.sort(function(a, b) { return b.pts - a.pts; });" &
+        
+        "for(var i=0; i<ranks.length; i++){" &
+            "var r = ranks[i];" &
+            "var elBadge = document.getElementById('badge-' + r.id);" &
+            "var elPts = document.getElementById('pts-' + r.id);" &
+            "if(elBadge) elBadge.innerText = (i+1) + 'º';" &
+            "if(elPts) elPts.innerText = r.pts.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' pts';" &
+        "}" &
+
+        "var table = document.querySelector('.tabela');" &
+        "if(table) {" &
+            "var trs = table.querySelectorAll('tr');" &
+            "for(var i=0; i<trs.length; i++){" &
+                "var tr = trs[i];" &
+                "if(tr.querySelector('td[colspan]')) continue;" &
+                "var totalCell = tr.lastElementChild;" &
+                "for(var j=0; j<ranks.length; j++){" &
+                    "var rId = ranks[j].id;" &
+                    "for(var k=0; k<tr.children.length; k++){" &
+                        "var child = tr.children[k];" &
+                        "if(child.id && child.id.endsWith('-' + rId)){" &
+                            "tr.insertBefore(child, totalCell);" &
+                            "break;" &
+                        "}" &
+                    "}" &
+                "}" &
+            "}" &
+        "}" &
+
+        "/* ESPELHAR NO DETALHAMENTO DOS APROVADOS */" &
+        "document.getElementById('hi-sul').innerText = formatarMoeda(sAp['Regional Sul']);" &
+        "document.getElementById('hi-sp').innerText = formatarMoeda(sAp['Regional Sudeste']);" &
+        "document.getElementById('hi-sd').innerText = formatarMoeda(sAp['Regional Sudeste 2']);" &
+        "document.getElementById('hi-nn').innerText = formatarMoeda(sAp['Regional NNCO']);" &
+        "document.getElementById('hi-total').innerText = formatarMoeda(sAp['Total']);" &
+        "document.getElementById('hc-sul').innerText = formatarMoeda(sComp['Regional Sul']);" &
+        "document.getElementById('hc-sp').innerText = formatarMoeda(sComp['Regional Sudeste']);" &
+        "document.getElementById('hc-sd').innerText = formatarMoeda(sComp['Regional Sudeste 2']);" &
+        "document.getElementById('hc-nn').innerText = formatarMoeda(sComp['Regional NNCO']);" &
+        "document.getElementById('hc-total').innerText = formatarMoeda(sComp['Total']);" &
+        "document.getElementById('hr-sul').innerText = formatarMoeda(sRetif['Regional Sul']);" &
+        "document.getElementById('hr-sp').innerText = formatarMoeda(sRetif['Regional Sudeste']);" &
+        "document.getElementById('hr-sd').innerText = formatarMoeda(sRetif['Regional Sudeste 2']);" &
+        "document.getElementById('hr-nn').innerText = formatarMoeda(sRetif['Regional NNCO']);" &
+        "document.getElementById('hr-total').innerText = formatarMoeda(sRetif['Total']);" &
+        "document.getElementById('ha-sul').innerText = formatarMoeda(sAjuiz['Regional Sul']);" &
+        "document.getElementById('ha-sp').innerText = formatarMoeda(sAjuiz['Regional Sudeste']);" &
+        "document.getElementById('ha-sd').innerText = formatarMoeda(sAjuiz['Regional Sudeste 2']);" &
+        "document.getElementById('ha-nn').innerText = formatarMoeda(sAjuiz['Regional NNCO']);" &
+        "document.getElementById('ha-total').innerText = formatarMoeda(sAjuiz['Total']);" &
+        "/* CALCULAR APRESENTADOS */" &
+        "var sApres = calcularSoma('dado-apres');" &
+        "document.getElementById('apres-sul').innerText = formatarMoeda(sApres['Regional Sul']);" &
+        "document.getElementById('apres-sp').innerText = formatarMoeda(sApres['Regional Sudeste']);" &
+        "document.getElementById('apres-sd').innerText = formatarMoeda(sApres['Regional Sudeste 2']);" &
+        "document.getElementById('apres-nn').innerText = formatarMoeda(sApres['Regional NNCO']);" &
+        "document.getElementById('apres-total').innerText = formatarMoeda(sApres['Total']);" &
+        "document.getElementById('card-apresentados').innerText = formatarMilhoes(sApres['Total']);" &
+        "/* CALCULAR PERDIDOS */" &
+        "var sPerd = calcularSoma('dado-perdidos');" &
+        "document.getElementById('perdidos-sul').innerText = formatarMoeda(sPerd['Regional Sul']);" &
+        "document.getElementById('perdidos-sp').innerText = formatarMoeda(sPerd['Regional Sudeste']);" &
+        "document.getElementById('perdidos-sd').innerText = formatarMoeda(sPerd['Regional Sudeste 2']);" &
+        "document.getElementById('perdidos-nn').innerText = formatarMoeda(sPerd['Regional NNCO']);" &
+        "document.getElementById('perdidos-total').innerText = formatarMoeda(sPerd['Total']);" &
+
+        "var sNaoAprovReal = calcularSoma('dado-nao-aprovados-real');" &
+        "document.getElementById('nareal-sul').innerText = formatarMoeda(sNaoAprovReal['Regional Sul']);" &
+        "document.getElementById('nareal-sp').innerText = formatarMoeda(sNaoAprovReal['Regional Sudeste']);" &
+        "document.getElementById('nareal-sd').innerText = formatarMoeda(sNaoAprovReal['Regional Sudeste 2']);" &
+        "document.getElementById('nareal-nn').innerText = formatarMoeda(sNaoAprovReal['Regional NNCO']);" &
+        "document.getElementById('nareal-total').innerText = formatarMoeda(sNaoAprovReal['Total']);" &
+        "var cardNAReal = document.getElementById('card-nao-aprovados-real'); if(cardNAReal) cardNAReal.innerText = formatarMilhoes(sNaoAprovReal['Total']);" &
+
+        "document.getElementById('card-perdidos').innerText = formatarMilhoes(sPerd['Total']);" &
+        "/* CALCULAR REUNIOES */" &
+        "var sReu = calcularSoma('dado-reuniao');" &
+        "document.getElementById('reuniao-sul').innerText = Math.round(sReu['Regional Sul']);" &
+        "document.getElementById('reuniao-sp').innerText = Math.round(sReu['Regional Sudeste']);" &
+        "document.getElementById('reuniao-sd').innerText = Math.round(sReu['Regional Sudeste 2']);" &
+        "document.getElementById('reuniao-nn').innerText = Math.round(sReu['Regional NNCO']);" &
+        "document.getElementById('reuniao-total').innerText = Math.round(sReu['Total']);" &
+
+    "}" &
+    "function toggleDetails(className) {" &
+        "var rows = document.getElementsByClassName(className);" &
+        "var icon = document.getElementById('icon-aprovados');" &
+        "if(rows.length === 0) return;" &
+        "var isHidden = rows[0].style.display === 'none';" &
+        "for (var i = 0; i < rows.length; i++) {" &
+            "rows[i].style.display = isHidden ? 'table-row' : 'none';" &
+        "}" &
+        "if(icon) { icon.innerHTML = isHidden ? '&#9660;' : '&#9654;'; }" &
+    "}" &
+    "setTimeout(function() { filtrarTudo(); }, 50);" &
+    "</script>" &
+    "</body></html>"
+RETURN _html
+
+
+
+

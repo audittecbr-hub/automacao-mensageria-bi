@@ -1,0 +1,119 @@
+﻿A sintaxe de '' está incorreta. (VAR _css = "<style>
+:root {
+    --bg: #0b0f19;
+    --bg-card: #121826;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(226, 179, 90, 0.3);
+    --text-main: #f1f5f9;
+    --text-sec: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #e2b35a;
+    --accent-glow: rgba(226, 179, 90, 0.15);
+    --blue: #38bdf8;
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+html, body { margin:0; padding:0; width:100vw; height:100vh; background:var(--bg); font-family:var(--font); color:var(--text-main); overflow:hidden; }
+* { box-sizing:border-box; }
+.painel { background: radial-gradient(circle at top left, rgba(226,179,90,0.04), transparent 50%), var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; display: flex; flex-direction: column; height: calc(100vh - 20px); margin: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+.cabecalho { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-shrink: 0; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+.cabecalho-esquerda { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.titulo { font-size: 20px; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.titulo span { color: var(--accent); }
+.badges-container { display: flex; align-items: center; gap: 10px; }
+.count-destaque { background: rgba(255,255,255,0.05); color: var(--text-sec); padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+.valor-destaque { background: rgba(226,179,90,0.1); color: var(--accent); padding: 6px 16px; border-radius: 8px; font-weight: 700; font-size: 16px; border: 1px solid var(--border-hover); font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 6px; }
+.controles { display: flex; align-items: center; gap: 12px; }
+.input-busca { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--text-main); padding: 10px 16px; border-radius: 8px; width: 260px; font-family: var(--font); font-size: 12px; transition: 0.2s; outline: none; }
+.input-busca:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
+.btn-copiar { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-sec); padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; white-space: nowrap; font-family: var(--font); }
+.btn-copiar:hover { background: rgba(226,179,90,0.12); border-color: var(--accent); color: #fff; box-shadow: 0 0 12px var(--accent-glow); }
+.table-wrapper { flex: 1 1 auto; overflow-y: auto; position: relative; border: 1px solid var(--border); border-radius: 10px; background: rgba(18, 24, 38, 0.4); }
+.table-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
+.table-wrapper::-webkit-scrollbar-track { background: transparent; }
+.table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+.table-wrapper::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+.tabela { width: 100%; border-collapse: collapse; text-align: left; }
+.tabela thead th { position: sticky; top: 0; background: #0e131f; padding: 12px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sec); border-bottom: 1px solid var(--border); z-index: 10; vertical-align: top; }
+.col-filter { margin-top: 8px; width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); color: var(--text-main); padding: 6px 8px; border-radius: 6px; font-size: 11px; font-family: var(--font); outline: none; transition: 0.2s; color-scheme: dark; }
+.col-filter:focus { border-color: var(--accent); background: rgba(0,0,0,0.6); }
+.tabela tbody td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; color: var(--text-main); white-space: nowrap; }
+.tabela tbody tr:hover td { background: rgba(226,179,90,0.05); }
+.tabela tbody tr:hover td:first-child { border-left: 3px solid var(--accent); padding-left: 11px; color: var(--accent); }
+.td-valor { text-align: right; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; color: var(--accent); font-weight: 600; }
+.tabela tfoot td { position: sticky; bottom: 0; background: #0e131f; border-top: 2px solid var(--border-hover); padding: 14px; font-size: 13px; font-weight: 700; z-index: 10; color: var(--text-main); }
+.tfoot-valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--accent); font-size: 16px; font-weight: 800; }
+</style>"
+
+VAR _dados_compactos = 
+    CONCATENATEX(
+        FILTER(
+            vw_powerbi_relatorio_aprovacao, 
+            vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_EM_NEGOCIACAO] > 0 && vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] = "REUNIÃO TÉCNICA" && vw_powerbi_relatorio_aprovacao[AREA_ATUAL] = "NEGOCIAÇÃO" && vw_powerbi_relatorio_aprovacao[DATA_RT] >= DATE(2026, 6, 12) && vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR] >= DATE(2026, 6, 1) && vw_powerbi_relatorio_aprovacao[DATA_MOV_ANTERIOR] <= DATE(2026, 12, 31)
+        ),
+        vw_powerbi_relatorio_aprovacao[Regional] & "|" & 
+        vw_powerbi_relatorio_aprovacao[AREA_ATUAL] & "|" & 
+        SUBSTITUTE(LEFT(vw_powerbi_relatorio_aprovacao[NOME], 35), "|", " ") & "|" & 
+        vw_powerbi_relatorio_aprovacao[JOB] & "|" & 
+        vw_powerbi_relatorio_aprovacao[NOME_TRIBUTO] & "|" & 
+        FORMAT(vw_powerbi_relatorio_aprovacao[DATA_RT], "dd/MM/yyyy") & "|" & 
+        FORMAT(vw_powerbi_relatorio_aprovacao[data_mov_anterior], "dd/MM/yyyy") & "|" & 
+        FORMAT(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_EM_NEGOCIACAO], "0.00") & "|" & 
+        FORMAT(vw_powerbi_relatorio_aprovacao[data_mov_anterior], "yyyy-MM") & "|" & 
+        FORMAT(vw_powerbi_relatorio_aprovacao[DATA_RT], "yyyy-MM-dd") & "|" & 
+        FORMAT(vw_powerbi_relatorio_aprovacao[data_mov_anterior], "yyyy-MM-dd"),
+        "~",
+        vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_EM_NEGOCIACAO], DESC
+    )
+
+VAR _js = "<script>
+var tipoFixo = 'Negociação';
+
+function formatarMoeda(val) {
+    return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function renderizarLinhas() {
+    var rawEl = document.getElementById('raw-data');
+    if(!rawEl) return;
+    var raw = rawEl.textContent.trim();
+    if(!raw) return;
+    var items = raw.split('~');
+    var tbody = document.getElementById('tbodyDetalhe');
+    tbody.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    var prods = {};
+
+    for(var i=0; i<items.length; i++) {
+        var cols = items[i].split('|');
+        if(cols.length < 11) continue;
+        var tr = document.createElement('tr');
+        tr.className = 'linha-detalhe';
+        tr.setAttribute('data-val', cols[7]);
+        tr.setAttribute('data-mes', cols[8]);
+        tr.setAttribute('data-rt', cols[9]);
+        tr.setAttribute('data-mov', cols[10]);
+        
+        var valNum = parseFloat(cols[7].replace(',', '.')) || 0;
+        var valFmt = 'R$ ' + valNum.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        var prodNome = cols[4];
+        if(prodNome) prods[prodNome] = true;
+        
+        tr.innerHTML = 
+            '<td class="td-tipo">' + tipoFixo + '</td>' +
+            '<td class="td-regional">' + cols[0] + '</td>' +
+            '<td class="td-area">' + cols[1] + '</td>' +
+            '<td class="td-cliente">' + cols[2] + '</td>' +
+            '<td class="td-job">' + cols[3] + '</td>' +
+            '<td class="td-produto">' + cols[4] + '</td>' +
+            '<td class="td-data-rt">' + cols[5] + '</td>' +
+            '<td class="td-data-mov">' + cols[6] + '</td>' +
+            '<td class="td-valor">' + valFmt + '</td>';
+        frag.appendChild(tr);
+    }
+    tbody.appendChild(frag);
+
+    var selP = document.getElementById('buscaColProduto');
+    if(selP && selP.options.le).

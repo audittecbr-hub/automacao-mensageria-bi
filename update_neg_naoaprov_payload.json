@@ -1,0 +1,17 @@
+[
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorário negociação",
+    "expression": "CALCULATE(\n    SUM(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_EM_NEGOCIACAO]),\n    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] = \"REUNIÃO TÉCNICA\"),\n    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ATUAL] = \"NEGOCIAÇÃO\")\n)"
+  },
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorários não aprovados",
+    "expression": "CALCULATE(\n    SUM(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_NAO_APROVADO]),\n    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] = \"REUNIÃO TÉCNICA\"),\n    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ATUAL] = \"FIM\")\n)"
+  },
+  {
+    "tableName": "vw_powerbi_relatorio_aprovacao",
+    "name": "Honorários perdidos",
+    "expression": "CALCULATE(\n    SUM(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_NAO_APROVADO]),\n    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] = \"NEGOCIAÇÃO\"),\n    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ATUAL] = \"FIM\")\n)"
+  }
+]

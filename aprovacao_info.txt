@@ -1,0 +1,79 @@
+Table found: vw_powerbi_relatorio_aprovacao
+  Col: RowNumber-2662979B-1795-4F74-8F37-6A1BA8059B61 (Int64)
+  Col: JOB (String)
+  Col: NOME (String)
+  Col: NOME_REGIONAL (String)
+  Col: DATA_RT (DateTime)
+  Col: NOME_TRIBUTO (String)
+  Col: AREA_ANTERIOR (String)
+  Col: DATA_MOV_ANTERIOR (DateTime)
+  Col: AREA_ATUAL (String)
+  Col: DIAS_AREA (Int64)
+  Col: VALOR_ATUAL (Double)
+  Col: HONORARIOS_ATUAL (Double)
+  Col: NOME_APRESENTADOR (String)
+  Col: NOME_LIDER_EQUIPE_RECEITA (String)
+  Col: NOME_EQUIPE_RECEITA (String)
+  Col: TOTAL_TRIBUTO (Double)
+  Col: CRED_DISP_COMPENSAR (Double)
+  Col: CRED_ESCR_COMPENSAR (Double)
+  Col: CRED_DISP_RESTITUIR (Double)
+  Col: CRED_ESCR_RESTITUIR (Double)
+  Col: UTILIZACAO_CLIENTE (Double)
+  Col: ATUALIZACAO_MONETARIA (Double)
+  Col: VALOR_NAO_APROVADO (Double)
+  Col: RedeDistribuicao1 (String)
+  Col: RedeDistribuicao2 (String)
+  Col: HONORARIOS_INICIAIS (Double)
+  Col: Regional (String)
+  Col: CNPJ (String)
+  Col: PERCENTUAL (Double)
+  Col: PASSIVO_PERCENTUAL (Double)
+  Col: TOTAL_APROVADO (Double)
+  Col: TOTAL_NAO_APROVADO (Double)
+  Col: PgpPassivo (Int64)
+  Col: TOTAL_EM_NEGOCIACAO (Double)
+  Col: CODIGO (Int64)
+  Col: HONORARIO_TOTAL_APROVADO (Double)
+  Col: HONORARIO_TOTAL_NAO_APROVADO (Double)
+  Col: HONORARIO_TOTAL_EM_NEGOCIACAO (Double)
+  Col: TOTAL_FORMA_UTLZ_COMPENSACAO (Double)
+  Col: TOTAL_FORMA_UTLZ_RESTITUICAO (Double)
+  Col: TOTAL_FORMA_UTLZ_HONORARIOS_INICIAIS (Double)
+  Col: TOTAL_FORMA_UTLZ_HONORARIOS_MENSAIS (Double)
+  Col: TOTAL_FORMA_UTLZ_AJUIZAMENTO (Double)
+  Col: TOTAL_ENCONTRADO (Double)
+  Col: TOTAL_APRESENTADO (Double)
+  Col: HONORARIO_TOTAL_FORMA_UTLZ_COMPENSACAO (Double)
+  Col: HONORARIO_TOTAL_FORMA_UTLZ_RESTITUICAO (Double)
+  Col: HONORARIO_TOTAL_FORMA_UTLZ_HONORARIOS_INICIAIS (Double)
+  Col: HONORARIO_TOTAL_FORMA_UTLZ_HONORARIOS_MENSAIS (Double)
+  Col: HONORARIO_TOTAL_FORMA_UTLZ_AJUIZAMENTO (Double)
+  Col: HONORARIO_TOTAL_ENCONTRADO (Double)
+  Col: HONORARIO_TOTAL_APRESENTADO (Double)
+  Measure: Honor rios encontrados = CALCULATE(
+    SUM(vw_powerbi_relatorio_aprovacao[HONORARIOS_ATUAL]),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[area_anterior] = "REUNIÇO TCNICA")
+)
+  Measure: Honor rios apresentados = CALCULATE(
+    SUM(vw_powerbi_relatorio_aprovacao[HONORARIOS_ATUAL]),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[area_anterior] = "REUNIÇO TCNICA"),
+    KEEPFILTERS(NOT ISBLANK(vw_powerbi_relatorio_aprovacao[data_rt])),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[data_rt] <= TODAY())
+)
+  Measure: Honor rios aprovados = SUM(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_APROVADO])
+  Measure: Honor rio negociaÆo = CALCULATE(
+    SUM(vw_powerbi_relatorio_aprovacao[HONORARIOS_ATUAL]),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] = "REUNIÇO TCNICA"),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ATUAL] = "NEGOCIAÇO")
+)
+  Measure: Honor rios perdidos = CALCULATE(
+    SUM(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_NAO_APROVADO]),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] = "NEGOCIAÇO"),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ATUAL] = "FIM")
+)
+  Measure: Honor rios nÆo aprovados = CALCULATE(
+    SUM(vw_powerbi_relatorio_aprovacao[HONORARIO_TOTAL_NAO_APROVADO]),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ANTERIOR] = "REUNIÇO TCNICA"),
+    KEEPFILTERS(vw_powerbi_relatorio_aprovacao[AREA_ATUAL] = "FIM")
+)

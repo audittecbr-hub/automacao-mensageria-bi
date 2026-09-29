@@ -1,0 +1,9 @@
+﻿
+
+[Sum_Top512_Total_Enc]   : 4548331169,8
+[Sum_Top512_Hon_Enc]     : 603391685,21514
+[Sum_Hon_Enc_MovRange]   : 696983976,041067
+[Count_Hon_Enc_MovRange] : 2102
+
+
+

@@ -1,0 +1,10 @@
+﻿Table: medidas_html | Measure: HTML_Detalhamento_Encontrados
+Table: medidas_html | Measure: HTML_Detalhamento_Apresentados
+Table: medidas_html | Measure: HTML_Detalhamento_Perdidos
+Table: medidas_html | Measure: HTML_Detalhamento_Nao_Aprovados
+Table: medidas_html | Measure: HTML_Detalhamento_Negociacao
+Table: vw_powerbi_relatorio_aprovacao | Measure: Honorários encontrados
+Table: vw_powerbi_relatorio_aprovacao | Measure: Honorários apresentados
+Table: vw_powerbi_relatorio_aprovacao | Measure: Honorário negociação
+Table: vw_powerbi_relatorio_aprovacao | Measure: Honorários perdidos
+Table: vw_powerbi_relatorio_aprovacao | Measure: Honorários não aprovados
