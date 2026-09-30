@@ -370,6 +370,8 @@ class InaAutomation:
 
         results = notification_service.send_batch(batch, context_tag="ina")
         logger.info(f"[INA] Envios: {results['success']} ok, {results['failed']} falhas.")
+        if results["failed"]:
+            raise RuntimeError("O lote INA teve envios não confirmados.")
 
 
 def main():

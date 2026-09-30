@@ -4,6 +4,45 @@ Separating queries from logic makes it easier to maintain and update the semanti
 """
 
 
+METAS_DEPARTMENTS = (
+    ("TAX", "Tax", "valor_Tax", "valor_Tax_Repasse", "tax_liquido"),
+    ("CORPORATE", "CORPORATE", "Valor_Corporate", "Valor_Corporate_Repasse", "corporate_liquido"),
+    ("EXPANSAO", "EXPANSAO", "Valor_Expansao", "Valor_Expansao_Repasse", "expansao_liquido"),
+    ("EDUCACAO", "EDUCAÇAO", "Valor_Educacao", "Valor_Educacao_Repasse", "educacao_liquido"),
+    ("FRANCHISING", "FRANCHISING", "Valor_Franchising", "Valor_Franchising_Repasse", "franchising_liquido"),
+    ("PJ", "PJ", "Valor_PJ", "Valor_PJ_Repasse", "tecnlogia_liquido"),
+)
+
+
+def get_metas_snapshot_query(date_start, date_end):
+    """Contrato de 87 campos validado com os cartões do Ranking_Metas_V2."""
+    fields = [
+        ("GS_Realizado", "COALESCE([total_liquido_operacao] + [total_liquido_comercial], 0)"),
+        ("GS_Meta1", "[Meta1]"), ("GS_Meta2", "[Meta2]"), ("GS_Meta3", "[Meta3]"),
+        *[(f"GS_Pct{n}", f"DIVIDE([total_liquido_operacao] + [total_liquido_comercial], [Meta{n}], 0)") for n in range(1, 4)],
+        ("Total_Geral", "[Realizado GS]"), ("Administracao", "[Valor_ADM]"),
+        ("Comercial_Realizado", "[total_liquido_comercial]"),
+        ("Operacional_Realizado", "[total_liquido_operacao]"),
+        ("Intercompany", "[Valor_InterCompany]"), ("Outras_Receitas", "[Valor_OutrasReceitas]"),
+        ("Sem_Categoria", "[Valor_Sem_Categoria]"), ("Repasse_Total", "[total_repasse]"),
+    ]
+    for label, prefix in (("Comercial", "COMERCIAL"), ("Operacional", "OPERACIONAL")):
+        for n in range(1, 4):
+            fields += [(f"{label}_Meta{n}", f"[Total_{label}_Meta{n}]"),
+                       (f"{label}_Pct{n}", f"[% Meta {n} {prefix}]")]
+    for label, prefix, gross, repasse, net in METAS_DEPARTMENTS:
+        fields += [(f"{label}_Bruto", f"COALESCE([{gross}], 0)"),
+                   (f"{label}_Repasse", f"[{repasse}]"),
+                   (f"{label}_Liquido_Card", f"COALESCE([{gross}], 0) - [{repasse}]"),
+                   (f"{label}_Liquido_Meta", f"[{net}]")]
+        for n in range(1, 4):
+            fields += [(f"{label}_Meta{n}", f"[{prefix}_Meta{n}]"),
+                       (f"{label}_Pct{n}", f"[% Meta {n} {label}]")]
+    row = ",\n".join(f'        "{name}", {expression}' for name, expression in fields)
+    return ("EVALUATE\nCALCULATETABLE(\n    ROW(\n" + row +
+            f"\n    ),\n    DATESBETWEEN('Calendario'[Date], {date_start}, {date_end})\n)")
+
+
 def get_metas_com_op_query(date_start, date_end):
     return f"""
     EVALUATE
@@ -61,16 +100,7 @@ def get_receitas_query(date_start, date_end):
             "InterCompany", [Valor_InterCompany],
             "SemCategoria", [Valor_Sem_Categoria],
             "Repasse", [total_repasse],
-            "TotalGeral", (
-                COALESCE([total_repasse], 0) +
-                COALESCE([tax_liquido], 0) +
-                COALESCE([corporate_liquido], 0) +
-                COALESCE([educacao_liquido], 0) +
-                COALESCE([expansao_liquido], 0) +
-                COALESCE([franchising_liquido], 0) +
-                IFERROR([tecnlogia_liquido], 0) +  // Nota: Erro de digitação 'tecnlogia' no dataset PBI
-                COALESCE([Valor_OutrasReceitas], 0)
-            )
+            "TotalGeral", [Realizado GS]
         ),
         DATESBETWEEN('Calendario'[Date], {date_start}, {date_end})
     )

@@ -16,6 +16,31 @@ class MetasRenderer(BaseRenderer):
     Renderizador para relatórios de Metas e Rankings.
     """
 
+    def _draw_header(self, draw, title_text, date_text):
+        header_h = super()._draw_header(draw, "", "")
+        max_width = self.width - 2 * self.padding - 65
+        y = 13
+        # Título e referência separados evitam texto sob o selo GS.
+        if title_text == "Acompanhamento da Meta Caixa GRUPO Studio":
+            title_text = "Acompanhamento Metas Caixa · Grupo Studio"
+        for text in (title_text, str(date_text or "")):
+            font = self._get_font(11, bold=True)
+            words = text.split()
+            lines, current = [], ""
+            for word in words:
+                candidate = f"{current} {word}".strip()
+                if current and draw.textbbox((0, 0), candidate, font=font)[2] > max_width:
+                    lines.append(current)
+                    current = word
+                else:
+                    current = candidate
+            if current:
+                lines.append(current)
+            for line in lines:
+                draw.text((self.padding, y), line, font=font, fill=self.card_color)
+                y += 14
+        return header_h
+
     def generate_ranking_image(self, title, data, metrics=None, output_path="ranking.png"):
         """
         Gera uma imagem de Ranking (estilo tabela) com Top 10 e métricas adicionais.
@@ -201,7 +226,7 @@ class MetasRenderer(BaseRenderer):
         current_y = header_h + padding
         if total_gs:
             # GS sempre usa a altura maior pois tem o realizado grande e 3 metas com barras
-            actual_gs_h = h_large
+            actual_gs_h = 300
             current_y += actual_gs_h + padding
 
         for pair in dept_pairs:
@@ -228,7 +253,7 @@ class MetasRenderer(BaseRenderer):
 
         if total_gs:
             card_w = self.width - 2 * margin
-            card_h = h_large  # GS card is large
+            card_h = 300
 
             draw.rounded_rectangle(
                 [(margin, y), (margin + card_w, y + card_h)],
@@ -250,7 +275,7 @@ class MetasRenderer(BaseRenderer):
             for i, key in enumerate(["meta1", "meta2", "meta3"]):
                 val = str(total_gs.get(key, "-"))
                 pct = total_gs.get(pct_keys[i], 0)
-                pct_text = f"{pct:.0f}%" if pct else "0%"
+                pct_text = f"{pct:.2f}%".replace(".", ",")
                 label = f"Meta {i + 1}"
 
                 draw.text((margin + pad, meta_y), label, font=font_label, fill=self.muted_text)
@@ -292,7 +317,7 @@ class MetasRenderer(BaseRenderer):
             real_y = meta_y + 5
             draw.text(
                 (margin + pad, real_y),
-                "REALIZADO:",
+                "REALIZADO LÍQUIDO:",
                 font=font_small,
                 fill=self.muted_text,
             )
@@ -305,11 +330,11 @@ class MetasRenderer(BaseRenderer):
             )
 
             # Realizado incluindo o repasse total (bruto consolidado)
-            real_rep = str(total_gs.get("realizado_com_repasse", "R$ 0,00"))
+            real_rep = str(total_gs.get("total_geral", "Sem dados"))
             rep_y = real_y + 44  # abaixo do valor grande do REALIZADO
             draw.text(
                 (margin + pad, rep_y),
-                "REALIZADO C/ REPASSE:",
+                "TOTAL GERAL:",
                 font=font_small,
                 fill=self.muted_text,
             )
@@ -319,6 +344,8 @@ class MetasRenderer(BaseRenderer):
                 font=font_value,
                 fill=self.gold_color,
             )
+            adm_text = "ADMINISTRAÇÃO: " + str(total_gs.get("administracao", "Sem dados"))
+            draw.text((margin + pad, rep_y + 40), adm_text, font=font_small, fill=self.muted_text)
 
             y += card_h + padding
 
@@ -595,8 +622,9 @@ class MetasRenderer(BaseRenderer):
 
     def generate_resumo_image(self, periodo, total_gs=None, receitas=None, output_path="metas_resumo.png"):
         self.width = 500
-        header_h = 70
-        gs_card_h = 240
+        temp_img = Image.new("RGB", (self.width, 1), self.bg_color)
+        header_h = self._draw_header(ImageDraw.Draw(temp_img), "RELATÓRIO GERAL", periodo)
+        gs_card_h = 300
         receitas_h = 100 if receitas else 0
         padding = 15
         height = header_h + gs_card_h + padding + receitas_h + 80
@@ -612,8 +640,7 @@ class MetasRenderer(BaseRenderer):
 
         margin = 15
 
-        data_atual = (datetime.now() - timedelta(days=1)).strftime("%d/%m/%Y")
-        header_h = self._draw_header(draw, "RELATÓRIO GERAL", data_atual)
+        header_h = self._draw_header(draw, "RELATÓRIO GERAL", periodo)
         y = header_h + padding
 
         if total_gs:
@@ -640,7 +667,7 @@ class MetasRenderer(BaseRenderer):
             for i, key in enumerate(["meta1", "meta2", "meta3"]):
                 val = str(total_gs.get(key, "-"))
                 pct = total_gs.get(pct_keys[i], 0)
-                pct_text = f"{pct:.0f}%" if pct else "0%"
+                pct_text = f"{pct:.2f}%".replace(".", ",")
                 label = f"Meta {i + 1}"
 
                 draw.text((margin + pad, meta_y), label, font=font_label, fill=self.muted_text)
@@ -681,7 +708,7 @@ class MetasRenderer(BaseRenderer):
             real_y = meta_y + 5
             draw.text(
                 (margin + pad, real_y),
-                "REALIZADO:",
+                "REALIZADO LÍQUIDO:",
                 font=font_small,
                 fill=self.muted_text,
             )
@@ -692,6 +719,9 @@ class MetasRenderer(BaseRenderer):
                 font=font_big_value,
                 fill=self.text_color,
             )
+            draw.text((margin + pad, real_y + 44), "TOTAL GERAL:", font=font_small, fill=self.muted_text)
+            draw.text((margin + pad, real_y + 58), str(total_gs.get("total_geral", "Sem dados")), font=font_value, fill=self.gold_color)
+            draw.text((margin + pad, real_y + 84), "ADMINISTRAÇÃO: " + str(total_gs.get("administracao", "Sem dados")), font=font_small, fill=self.muted_text)
 
             y += card_h + padding
 
@@ -765,8 +795,7 @@ class MetasRenderer(BaseRenderer):
         font_small = self._get_font(12)
 
         nome = departamento.get("nome", "DEPARTAMENTO").upper()
-        data_geracao = (datetime.now() - timedelta(days=1)).strftime("%d/%m/%Y")
-        periodo_display = f"Período: {data_geracao}"
+        periodo_display = f"Período: {periodo}"
 
         header_h = self._draw_header(draw, nome, periodo_display)
         y = header_h + 15

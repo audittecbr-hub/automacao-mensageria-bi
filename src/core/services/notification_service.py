@@ -51,7 +51,8 @@ class NotificationService:
                 time.sleep(random.randint(4, 8))
 
                 # 2. Enviar Arquivo
-                self.whatsapp.send_file(str(telefone), image_path, caption)
+                if not self.whatsapp.send_file(str(telefone), image_path, caption):
+                    raise RuntimeError("Evolution API não confirmou o envio do arquivo.")
 
             logger.info(f"   [Notification] OK: WhatsApp para {nome} ({context_tag})")
 
@@ -90,7 +91,7 @@ class NotificationService:
         sends: List[Tuple[Dict[str, Any], str, str]],
         context_tag: str = "report",
         max_workers: int = 3,
-    ) -> Dict[str, int]:
+    ) -> Dict[str, Any]:
         """
         Envia um lote de mensagens WhatsApp com concorrência controlada.
 
@@ -104,9 +105,9 @@ class NotificationService:
         :returns: {"success": N, "failed": M}
         """
         if not sends:
-            return {"success": 0, "failed": 0}
+            return {"success": 0, "failed": 0, "successful_contact_ids": []}
 
-        results = {"success": 0, "failed": 0}
+        results = {"success": 0, "failed": 0, "successful_contact_ids": []}
         logger.info(f"[Batch] Iniciando envio de {len(sends)} mensagens ({context_tag}) com {max_workers} workers.")
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -122,6 +123,8 @@ class NotificationService:
                     success = future.result()
                     if success:
                         results["success"] += 1
+                        if recipient.get("id"):
+                            results["successful_contact_ids"].append(recipient["id"])
                     else:
                         results["failed"] += 1
                 except Exception as e:

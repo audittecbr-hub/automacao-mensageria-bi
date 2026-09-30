@@ -84,6 +84,8 @@ class NotasAutomation:
         if not dry_run:
             results = notification_service.send_batch(batch, context_tag="notas")
             logger.info(f"[Notas] Envios: {results['success']} ok, {results['failed']} falhas.")
+            if results["failed"]:
+                raise RuntimeError("O lote de Notas teve envios não confirmados.")
         else:
             logger.info(f"[DRY-RUN] Simulação de envio para {len(batch)} destinatários.")
             for p, img, cap in batch:

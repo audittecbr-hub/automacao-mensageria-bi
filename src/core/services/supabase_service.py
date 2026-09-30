@@ -214,6 +214,17 @@ class SupabaseService:
         except Exception as e:
             logger.warning(f"Erro ao atualizar job {job_id}: {e}")
 
+    def claim_job(self, job_id) -> bool:
+        """Reivindicação atômica: só um worker muda pending para processing."""
+        response = requests.patch(
+            f"{self.url}/rest/v1/automation_queue",
+            params={"id": f"eq.{job_id}", "status": "eq.pending"},
+            headers={**self.headers, "Prefer": "return=representation"},
+            json={"status": "processing", "updated_at": "now()"}, timeout=30,
+        )
+        response.raise_for_status()
+        return len(response.json()) == 1
+
     def get_schedule_by_id(self, schedule_id):
         """Busca detalhes de um agendamento específico."""
         try:

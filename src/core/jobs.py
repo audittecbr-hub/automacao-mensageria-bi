@@ -1,8 +1,11 @@
+import threading
+
 from src.core.services.supabase_service import SupabaseService
 from src.core.utils.logger import get_logger
 from src.modules.metas.runner import MetasAutomation
 
 logger = get_logger("jobs")
+_metas_execution_lock = threading.Lock()
 
 # --- Job Wrappers ---
 
@@ -12,7 +15,7 @@ def job_metas(recipients=None, template_content=None):
     logger.info("Iniciando Metas Automation (Dynamic)")
     SupabaseService().log_event("job_start", {"job": "metas"})
     ma = MetasAutomation()
-    ma.run(recipients=recipients, template_content=template_content)
+    return ma.run(recipients=recipients, template_content=template_content)
 
 
 def job_ranking_geral(recipients=None, template_content=None):
@@ -114,7 +117,7 @@ PBI_WORKSPACE_ID = "4600324e-148c-4aae-a743-601628c04d29"
 # Mapeamento de nome amigável → ID do dataset no Power BI
 PBI_DATASETS: dict[str, str] = {
     "Composição de Receitas": "26873b5b-7e88-48b9-8a23-e504178fcf8a",
-    "Geral (Metas)": "5f1e9f0f-8388-438d-a0be-6a5e13bb3ce4",
+    "Geral (Metas)": "72edf515-6d51-4fb9-ad43-be8b77c85604",
     "Painel de Unidades": "f476a231-a82f-405d-b0e5-1a4147e172ca",
     "Painel a Receber": "97104bd3-fa7f-4a40-94f8-4989254e7f48",
     "Painel de Inadimplência": "92174395-c9b1-4b2c-b491-137fff6bb634",
@@ -176,7 +179,7 @@ def job_refresh_dashboards(dashboards: list[str]) -> dict:
 
             success = pbi.trigger_dataset_refresh(dataset_id, workspace_id=PBI_WORKSPACE_ID)
             results[name] = success
-            log_level = "job_success" if success else "job_error"
+            log_level = "job_requested" if success else "job_error"
             supabase.log_event(log_level, {"job": "pbi_refresh_dashboards", "dashboard": name})
 
         # Etapa 3: Log de conclusão global com resumo dos resultados
@@ -190,8 +193,8 @@ def job_refresh_dashboards(dashboards: list[str]) -> dict:
                 "results": results,
             })
         else:
-            logger.info(f"[JOB] Refresh concluído com sucesso. Total: {len(targets)} dashboard(s).")
-            supabase.log_event("job_success", {
+            logger.info(f"[JOB] Solicitações de refresh aceitas. Total: {len(targets)} dashboard(s).")
+            supabase.log_event("job_requested", {
                 "job": "pbi_refresh_dashboards",
                 "total": len(targets),
                 "results": results,
@@ -223,14 +226,25 @@ JOB_MAPPING = {
 
 def safe_run_job(job_func, recipients=None, template_content=None):
     """Wrapper para executar jobs com tratamento de erro e logs."""
+    is_metas = job_func.__name__ in ("job_metas", "job_ranking_geral")
+    acquired = is_metas and _metas_execution_lock.acquire(blocking=False)
+    if is_metas and not acquired:
+        raise RuntimeError("Metas já está em execução; disparo duplicado interrompido.")
     try:
         if recipients:
-            job_func(recipients=recipients, template_content=template_content)
+            result = job_func(recipients=recipients, template_content=template_content)
         else:
-            job_func(template_content=template_content)
+            result = job_func(template_content=template_content)
+        if result is False or (isinstance(result, dict) and result.get("failed", 0)):
+            raise RuntimeError("A automação informou falha na execução ou no envio.")
         SupabaseService().log_event("job_success", {"job": job_func.__name__})
+        return result
     except Exception as e:
         error_msg = f"❌ Erro na execução de '{job_func.__name__}': {str(e)}"
         logger.error(error_msg)
         SupabaseService().log_event("job_error", {"job": job_func.__name__, "error": str(e)})
+        raise
         # alert_admin(error_msg) # TODO: Decouple admin alert
+    finally:
+        if acquired:
+            _metas_execution_lock.release()

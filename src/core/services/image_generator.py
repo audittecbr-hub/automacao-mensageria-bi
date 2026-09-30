@@ -5,7 +5,6 @@ Responsável por delegar a criação das imagens para os renderizadores especial
 
 import os
 
-from .image_renderer.jobs_renderer import JobsRenderer
 
 # from services.image_renderer.metas_renderer import MetasRenderer
 # from services.image_renderer.unidades_renderer import UnidadesRenderer
@@ -23,7 +22,7 @@ class ImageGenerator:
     def __init__(self):
         self.metas_renderer = MetasRenderer()
         self.unidades_renderer = UnidadesRenderer()
-        self.jobs_renderer = JobsRenderer()
+        self.jobs_renderer = None
         self.notas_renderer = NotasRenderer()
 
     def generate_ranking_image(self, title, data, metrics=None, output_path="ranking.png"):
@@ -55,6 +54,9 @@ class ImageGenerator:
         report_title="RELATÓRIO DE JOBS",
         output_path="jobs_report.pdf",
     ):
+        if self.jobs_renderer is None:
+            from .image_renderer.jobs_renderer import JobsRenderer
+            self.jobs_renderer = JobsRenderer()
         return self.jobs_renderer.generate_jobs_report(new_jobs, cancelled_jobs, report_title, output_path)
 
     def generate_notas_image(self, data, output_path="notas.png"):

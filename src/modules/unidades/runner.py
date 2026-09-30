@@ -170,7 +170,9 @@ class UnidadesAutomation:
                 batch.append((r, output_path, caption))
 
             if not dry_run:
-                self.notification_service.send_batch(batch, context_tag="unidades")
+                results = self.notification_service.send_batch(batch, context_tag="unidades")
+                if results["failed"]:
+                    raise RuntimeError("O lote de Unidades teve envios não confirmados.")
             else:
                 logger.info(f"[DRY-RUN] Simulação de envio para {len(batch)} contatos.")
 

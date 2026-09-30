@@ -17,7 +17,9 @@ known_files.json
 
 # Arquivos de teste
 test_*.py
+!tests/test_*.py
 test_result.txt
+.pytest_cache/
 
 # IDE
 .vscode/
@@ -32,4 +34,5 @@ data/*.json
 !data/settings.json
 images/*.png
 images/*.pdf
+images/
 logs/
