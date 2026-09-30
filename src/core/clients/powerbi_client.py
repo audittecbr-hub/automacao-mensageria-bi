@@ -56,11 +56,15 @@ class _DAXCache:
 _dax_cache = _DAXCache(ttl_seconds=1800)
 
 
+class DaxQueryError(RuntimeError):
+    """Uma coleta inválida não pode ser convertida em valores zero."""
+
+
 class PowerBIClient:
     def __init__(self, workspace_id=None, dataset_id=None):
-        self.tenant = os.environ.get("SHAREPOINT_TENANT")
-        self.client_id = os.environ.get("SHAREPOINT_CLIENT_ID")
-        self.client_secret = os.environ.get("SHAREPOINT_CLIENT_SECRET")
+        self.tenant = os.environ.get("SHAREPOINT_TENANT") or os.environ.get("POWERBI_TENANT")
+        self.client_id = os.environ.get("SHAREPOINT_CLIENT_ID") or os.environ.get("POWERBI_CLIENT_ID")
+        self.client_secret = os.environ.get("SHAREPOINT_CLIENT_SECRET") or os.environ.get("POWERBI_CLIENT_SECRET")
 
         # Priority: Constructor Args > Env Vars
         self.workspace_id = workspace_id or os.environ.get("POWERBI_WORKSPACE_ID")
@@ -111,7 +115,7 @@ class PowerBIClient:
             logger.error(f"Erro na autenticacao: {e}")
             return False
 
-    def execute_dax(self, query: str) -> list | None:
+    def execute_dax(self, query: str, *, use_cache: bool = True, strict: bool = False) -> list | None:
         """
         Executa uma consulta DAX no dataset configurado.
         Retorna uma lista de linhas (dicionários) ou lista vazia em caso de erro.
@@ -120,8 +124,9 @@ class PowerBIClient:
         ao Power BI quando a mesma query é chamada várias vezes no mesmo ciclo.
         """
         # Verifica cache antes de qualquer requisição HTTP
-        cache_key = hashlib.md5(query.encode("utf-8")).hexdigest()
-        cached = _dax_cache.get(cache_key)
+        cache_identity = "\0".join((getattr(self, "tenant", "") or "", self.workspace_id or "", self.dataset_id or "", query))
+        cache_key = hashlib.sha256(cache_identity.encode("utf-8")).hexdigest()
+        cached = _dax_cache.get(cache_key) if use_cache else None
         if cached is not None:
             logger.debug(f"DAX cache hit [{cache_key[:8]}]")
             return cached
@@ -129,6 +134,8 @@ class PowerBIClient:
         # Renova token se ausente ou expirado
         if not self.token or time.time() >= self.token_expiry:
             if not self.authenticate():
+                if strict:
+                    raise DaxQueryError("Autenticação Power BI falhou; coleta interrompida.")
                 return None
 
         url = f"https://api.powerbi.com/v1.0/myorg/groups/{self.workspace_id}/datasets/{self.dataset_id}/executeQueries"
@@ -148,19 +155,49 @@ class PowerBIClient:
             response.raise_for_status()
 
             result = response.json()
-            tables = result.get("results", [{}])[0].get("tables", [{}])
-
-            if tables:
-                rows = tables[0].get("rows", [])
+            if not isinstance(result, dict) or result.get("error"):
+                raise DaxQueryError("Power BI retornou erro no resultado DAX.")
+            results = result.get("results")
+            if not isinstance(results, list) or len(results) != 1 or not isinstance(results[0], dict) or results[0].get("error"):
+                raise DaxQueryError("Resposta DAX sem um resultado válido.")
+            tables = results[0].get("tables")
+            if not isinstance(tables, list) or len(tables) != 1 or not isinstance(tables[0], dict) or tables[0].get("error"):
+                raise DaxQueryError("Resposta DAX sem uma tabela válida.")
+            rows = tables[0].get("rows")
+            if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+                raise DaxQueryError("Linhas DAX ausentes ou inválidas.")
+            if use_cache:
                 _dax_cache.set(cache_key, rows)
-                return rows
-            return []
+            return rows
 
-        except requests.exceptions.RequestException as e:
+        except (requests.exceptions.RequestException, ValueError, DaxQueryError) as e:
             logger.error(f"Erro ao executar DAX: {e}")
-            if hasattr(e, "response") and e.response is not None:
-                logger.error(f"Detalhes: {e.response.text[:500]}")
+            if strict:
+                raise DaxQueryError("Não foi possível coletar uma resposta DAX válida.") from e
             return None
+
+    def get_dataset_info(self) -> dict:
+        return self._read_dataset_metadata("")
+
+    def get_latest_refresh(self) -> dict | None:
+        response = self._read_dataset_metadata("/refreshes?$top=1")
+        items = response.get("value", [])
+        return items[0] if items else None
+
+    def _read_dataset_metadata(self, suffix: str) -> dict:
+        if not self.token or time.time() >= self.token_expiry:
+            if not self.authenticate():
+                raise DaxQueryError("Falha ao autenticar para verificar o modelo.")
+        url = f"https://api.powerbi.com/v1.0/myorg/groups/{self.workspace_id}/datasets/{self.dataset_id}{suffix}"
+        try:
+            response = self.session.get(url, headers={"Authorization": f"Bearer {self.token}"}, timeout=20)
+            response.raise_for_status()
+            result = response.json()
+            if not isinstance(result, dict) or result.get("error"):
+                raise DaxQueryError("Metadados Power BI inválidos.")
+            return result
+        except (requests.exceptions.RequestException, ValueError) as e:
+            raise DaxQueryError("Não foi possível verificar o modelo/carga do Power BI.") from e
 
     def get_sample_data(self) -> list | None:
         """Retorna dados de exemplo (teste de conexão simples)."""
@@ -211,6 +248,7 @@ class PowerBIClient:
 
             # 202 Accepted = Power BI aceitou a requisição de refresh
             if response.status_code == 202:
+                _dax_cache.clear()
                 logger.info(f"Refresh aceito para dataset {dataset_id}")
                 return True
 

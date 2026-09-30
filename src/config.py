@@ -44,14 +44,21 @@ POWERBI_CONFIG = {
     # Workspace único compartilhado por todos os relatórios
     "workspace_id": os.getenv("POWERBI_WORKSPACE_ID"),
     # Dataset ID específico para cada automação (variáveis preferidas)
-    "metas_workspace_id": os.getenv("POWERBI_METAS_WORKSPACE_ID", os.getenv("POWERBI_WORKSPACE_ID")),
-    "metas_dataset_id": os.getenv("POWERBI_METAS_DATASET_ID"),
+    "metas_workspace_id": os.getenv("POWERBI_METAS_WORKSPACE_ID") or os.getenv("POWERBI_WORKSPACE_ID") or "4600324e-148c-4aae-a743-601628c04d29",
+    "metas_dataset_id": os.getenv("POWERBI_METAS_DATASET_ID") or "72edf515-6d51-4fb9-ad43-be8b77c85604",
     "notas_dataset_id": os.getenv("POWERBI_NOTAS_DATASET_ID", "e8091511-60d7-4b54-80bf-c586fdc49a64"),
     "ina_workspace_id": os.getenv("POWERBI_INA_WORKSPACE_ID", os.getenv("POWERBI_WORKSPACE_ID")),
     "ina_dataset_id": os.getenv("POWERBI_INA_DATASET_ID"),
     "unidades_workspace_id": os.getenv("POWERBI_UNIDADES_WORKSPACE_ID", os.getenv("POWERBI_WORKSPACE_ID")),
     "unidades_dataset_id": os.getenv("POWERBI_UNIDADES_DATASET_ID"),
 }
+
+# Migração explícita do único ID legado identificado na auditoria.
+# Outros IDs continuam sendo recusados pelo contrato de Metas.
+METAS_LEGACY_DATASET_ID = "5f1e9f0f-8388-438d-a0be-6a5e13bb3ce4"
+METAS_DATASET_MIGRATED = POWERBI_CONFIG["metas_dataset_id"] == METAS_LEGACY_DATASET_ID
+if METAS_DATASET_MIGRATED:
+    POWERBI_CONFIG["metas_dataset_id"] = "72edf515-6d51-4fb9-ad43-be8b77c85604"
 
 # Configurações Evolution API
 EVOLUTION_CONFIG = {

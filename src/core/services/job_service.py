@@ -33,7 +33,9 @@ class JobService:
     def _process_single_job(self, job):
         job_id = job["id"]
         logger.info(f"🚀 [QUEUE] Processando Job {job_id}...")
-        self.supabase.update_job_status(job_id, "processing")
+        if not self.supabase.claim_job(job_id):
+            logger.info("Job %s já foi reivindicado por outro worker.", job_id)
+            return
         self.supabase.log_event("job_queue_start", {"job_id": job_id, "schedule_id": job.get("schedule_id")})
 
         start_time = time.time()

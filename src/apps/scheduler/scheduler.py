@@ -40,6 +40,8 @@ def _run_job_in_thread(job_func, job_name: str, recipients=None, template_conten
     def _target():
         try:
             safe_run_job(job_func, recipients=recipients, template_content=template_content)
+        except Exception:
+            logger.exception("Job '%s' falhou; nenhum sucesso será registrado.", job_name)
         finally:
             with _running_lock:
                 _running_jobs.discard(job_name)
@@ -61,6 +63,7 @@ def refresh_schedule():
 
     svc = SupabaseService()
     active_schedules = svc.get_active_schedules()
+    logger.info("Versão do fluxo de Metas: metas-v2-20260930")
 
     if not active_schedules:
         logger.warning("Nenhum agendamento ativo encontrado no Supabase.")
@@ -119,7 +122,7 @@ def refresh_schedule():
                     scheduler_obj.at(time_clean).do(
                         _run_job_in_thread,
                         job_func,
-                        job_name=name,
+                        job_name="metas_diarias" if def_key in ("metas_diarias", "ranking_geral") else name,
                         recipients=recipients,
                         template_content=template_content,
                     )
@@ -144,6 +147,7 @@ def run_scheduler_loop():
 
     # 2. Initial Load
     refresh_schedule()
+    SupabaseService().log_event("scheduler_version", {"version": "metas-v2-20260930", "metas_dataset_id": "72edf515-6d51-4fb9-ad43-be8b77c85604"})
 
     # 3. Setup Job Service
     job_service = JobService()
