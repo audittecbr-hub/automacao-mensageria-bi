@@ -49,8 +49,9 @@ class PowerBIDataFetcher:
         if model.get("id") != METAS_DATASET_ID or model.get("name") != "Ranking_Metas_V2":
             raise DaxQueryError("O dataset configurado não corresponde ao Ranking_Metas_V2 validado.")
         refresh = self.client.get_latest_refresh()
+        load = self._current_load(refresh, self._get_publications())
         if self.period.mode == "daily":
-            self._validate_daily_refresh(refresh)
+            self._validate_daily_load(load)
         start, end = self._get_month_range()
         query = get_metas_snapshot_query(start, end)
         rows = self.client.execute_dax(query, use_cache=False, strict=True)
@@ -75,20 +76,38 @@ class PowerBIDataFetcher:
             "model_name": model["name"], "period": self.period.metadata(), "values": values,
             "query_sha256": hashlib.sha256(query.encode("utf-8")).hexdigest(),
             "source_refresh": {key: refresh.get(key) for key in ("requestId", "status", "startTime", "endTime")} if refresh else None,
-            "source_policy": "current_loaded_bi" if self.period.mode == "current_snapshot" else "completed_refresh",
+            "source_load": {"kind": load[0], "at": load[1].isoformat()} if load else None,
+            "source_policy": "current_loaded_bi" if self.period.mode == "current_snapshot" else load[0],
         }
         logger.info("Metas V2: %s a %s; 87 campos coletados sem cache", self.period.start, self.period.end)
         return self.snapshot
 
-    def _validate_daily_refresh(self, refresh):
-        if not refresh or refresh.get("status") != "Completed" or not refresh.get("endTime"):
-            raise DaxQueryError("Envio diário bloqueado: a última atualização do V2 não foi concluída.")
+    def _get_publications(self) -> list[dict]:
         try:
-            completed = datetime.fromisoformat(refresh["endTime"].replace("Z", "+00:00")).astimezone(TIMEZONE)
-        except (TypeError, ValueError) as error:
-            raise DaxQueryError("Data de atualização do V2 inválida.") from error
-        if completed.date() < self.period.end:
-            raise DaxQueryError("Envio diário bloqueado: atualização anterior à referência D-1.")
+            return self.client.get_publications()
+        except DaxQueryError as error:
+            logger.warning("Publicações do V2 indisponíveis; a carga será validada só pelo refresh: %s", error)
+            return []
+
+    @staticmethod
+    def _current_load(refresh, publications):
+        """Refresh com falha mantém a carga anterior; vale o refresh concluído ou a publicação mais recente."""
+        candidates = [("pbix_publication", item.get("updatedDateTime")) for item in publications]
+        if refresh and refresh.get("status") == "Completed":
+            candidates.append(("completed_refresh", refresh.get("endTime")))
+        loads = []
+        for kind, moment in candidates:
+            try:
+                loads.append((kind, datetime.fromisoformat(moment.replace("Z", "+00:00")).astimezone(TIMEZONE)))
+            except (AttributeError, TypeError, ValueError):
+                continue
+        return max(loads, key=lambda load: load[1], default=None)
+
+    def _validate_daily_load(self, load):
+        if not load:
+            raise DaxQueryError("Envio diário bloqueado: o V2 não tem atualização concluída (refresh ou publicação do PBIX).")
+        if load[1].date() < self.period.end:
+            raise DaxQueryError("Envio diário bloqueado: última atualização do V2 anterior à referência D-1.")
 
     @staticmethod
     def _validate_values(values):

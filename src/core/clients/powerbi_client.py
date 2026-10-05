@@ -184,11 +184,20 @@ class PowerBIClient:
         items = response.get("value", [])
         return items[0] if items else None
 
+    def get_publications(self) -> list[dict]:
+        """Publicações concluídas do PBIX que contêm o dataset; publicar não gera registro de refresh."""
+        imports = self._read_metadata("/imports").get("value", [])
+        return [item for item in imports if item.get("importState") == "Succeeded"
+                and any(dataset.get("id") == self.dataset_id for dataset in item.get("datasets") or [])]
+
     def _read_dataset_metadata(self, suffix: str) -> dict:
+        return self._read_metadata(f"/datasets/{self.dataset_id}{suffix}")
+
+    def _read_metadata(self, path: str) -> dict:
         if not self.token or time.time() >= self.token_expiry:
             if not self.authenticate():
                 raise DaxQueryError("Falha ao autenticar para verificar o modelo.")
-        url = f"https://api.powerbi.com/v1.0/myorg/groups/{self.workspace_id}/datasets/{self.dataset_id}{suffix}"
+        url = f"https://api.powerbi.com/v1.0/myorg/groups/{self.workspace_id}{path}"
         try:
             response = self.session.get(url, headers={"Authorization": f"Bearer {self.token}"}, timeout=20)
             response.raise_for_status()

@@ -10,7 +10,8 @@ O envio diário consulta do primeiro dia do mês de D-1 até D-1, em America/Sao
 Título, legenda e consultas compartilham a mesma referência; a virada do mês fecha o mês anterior.
 
 Uma única consulta retorna os 87 campos dos cartões do BI, sem cache. GS líquido e TOTAL geral
-são métricas separadas. O diário exige uma atualização concluída e válida para sua referência.
+são métricas separadas. O diário exige uma atualização a partir de D-1: refresh concluído no Service
+ou publicação do PBIX pelo Desktop, valendo a mais recente.
 Falhas de consulta, imagem ou envio propagam erro; a fila não registra completed nesses casos.
 
 Para gerar uma fotografia do mês atualmente carregado no BI, sem enviar:
