@@ -41,16 +41,21 @@ class FakeModel:
     dataset_id = METAS_DATASET_ID
     workspace_id = "fake-workspace"
 
-    def __init__(self, row=None, status="Completed"):
+    def __init__(self, row=None, status="Completed", refreshed_at="2026-09-30T12:00:00Z", published_at=None):
         self.row = model_row() if row is None else row
         self.status = status
+        self.refreshed_at = refreshed_at
+        self.published_at = published_at
         self.calls = []
 
     def get_dataset_info(self):
         return {"id": METAS_DATASET_ID, "name": "Ranking_Metas_V2"}
 
     def get_latest_refresh(self):
-        return {"status": self.status, "endTime": "2026-09-30T12:00:00Z"}
+        return {"status": self.status, "endTime": self.refreshed_at}
+
+    def get_publications(self):
+        return [{"importState": "Succeeded", "updatedDateTime": self.published_at}] if self.published_at else []
 
     def execute_dax(self, query, **kwargs):
         self.calls.append((query, kwargs))
@@ -99,6 +104,41 @@ def test_daily_rejects_failed_refresh_while_explicit_bi_snapshot_is_allowed():
     assert not client.calls
 
 
+def daily_on_monday():
+    return MetasPeriod.daily(now=datetime(2026, 10, 5, 14, tzinfo=TIMEZONE))
+
+
+@pytest.mark.parametrize("status,refreshed_at,published_at,expected", [
+    ("Failed", "2026-09-30T14:34:16Z", "2026-10-05T15:21:40.62Z", "pbix_publication"),
+    ("Completed", "2026-10-05T12:00:00Z", "2026-10-02T15:00:00Z", "completed_refresh"),
+    ("Completed", "2026-10-04T03:30:00Z", None, "completed_refresh"),
+])
+def test_daily_accepts_the_latest_valid_load_from_refresh_or_publication(status, refreshed_at, published_at, expected):
+    client = FakeModel(status=status, refreshed_at=refreshed_at, published_at=published_at)
+    snapshot = PowerBIDataFetcher(daily_on_monday(), client=client).fetch_snapshot()
+    assert snapshot["source_policy"] == expected
+    assert "DATE(2026, 10, 4)" in client.calls[0][0]
+
+
+@pytest.mark.parametrize("status,refreshed_at,published_at", [
+    ("Failed", "2026-10-05T12:00:00Z", None),
+    ("Failed", "2026-10-05T12:00:00Z", "2026-10-04T02:00:00Z"),  # 03/10 às 23h em Brasília
+    ("Completed", "2026-10-02T12:00:00Z", "2026-10-03T12:00:00Z"),
+    ("Failed", None, "data-invalida"),
+])
+def test_daily_blocks_when_no_valid_load_reaches_d1(status, refreshed_at, published_at):
+    client = FakeModel(status=status, refreshed_at=refreshed_at, published_at=published_at)
+    with pytest.raises(DaxQueryError, match="atualização"):
+        PowerBIDataFetcher(daily_on_monday(), client=client).fetch_snapshot()
+    assert not client.calls
+
+
+def test_unreadable_publications_fall_back_to_the_refresh_rule():
+    client = FakeModel(status="Completed", refreshed_at="2026-10-05T12:00:00Z")
+    client.get_publications = Mock(side_effect=DaxQueryError("fake"))
+    assert PowerBIDataFetcher(daily_on_monday(), client=client).fetch_snapshot()["source_policy"] == "completed_refresh"
+
+
 @pytest.mark.parametrize("invalid", ["missing", "nan", "missing_goal", "ratio"])
 def test_invalid_collection_cannot_become_a_report(invalid):
     row = model_row()
@@ -143,6 +183,17 @@ def test_http200_with_dax_error_is_not_a_success(body):
     client.session.post.return_value = FakeResponse(body)
     with pytest.raises(DaxQueryError):
         client.execute_dax("fake error query", use_cache=False, strict=True)
+
+
+def test_publications_only_include_succeeded_imports_of_the_dataset():
+    client = dax_client(METAS_DATASET_ID, 0)
+    client.session.get = Mock(return_value=FakeResponse({"value": [
+        {"importState": "Succeeded", "updatedDateTime": "2026-10-05T15:21:40.62Z", "datasets": [{"id": METAS_DATASET_ID}]},
+        {"importState": "Failed", "updatedDateTime": "2026-10-05T16:00:00Z", "datasets": [{"id": METAS_DATASET_ID}]},
+        {"importState": "Succeeded", "updatedDateTime": "2026-10-05T17:00:00Z", "datasets": [{"id": "other-model"}]},
+    ]}))
+    assert [item["updatedDateTime"] for item in client.get_publications()] == ["2026-10-05T15:21:40.62Z"]
+    assert client.session.get.call_args[0][0].endswith("/groups/fake-workspace/imports")
 
 
 def test_delivery_false_never_logs_message_sent(monkeypatch):

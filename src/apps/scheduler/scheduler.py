@@ -63,7 +63,7 @@ def refresh_schedule():
 
     svc = SupabaseService()
     active_schedules = svc.get_active_schedules()
-    logger.info("Versão do fluxo de Metas: metas-v2-20260930")
+    logger.info("Versão do fluxo de Metas: metas-v2-20261005")
 
     if not active_schedules:
         logger.warning("Nenhum agendamento ativo encontrado no Supabase.")
@@ -147,7 +147,7 @@ def run_scheduler_loop():
 
     # 2. Initial Load
     refresh_schedule()
-    SupabaseService().log_event("scheduler_version", {"version": "metas-v2-20260930", "metas_dataset_id": "72edf515-6d51-4fb9-ad43-be8b77c85604"})
+    SupabaseService().log_event("scheduler_version", {"version": "metas-v2-20261005", "metas_dataset_id": "72edf515-6d51-4fb9-ad43-be8b77c85604"})
 
     # 3. Setup Job Service
     job_service = JobService()
