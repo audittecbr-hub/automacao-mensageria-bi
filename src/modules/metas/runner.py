@@ -259,8 +259,17 @@ class MetasAutomation:
             for contact_id in first_time_contacts.intersection(results["successful_contact_ids"]):
                 self.supabase.mark_welcome_sent(contact_id)
             logger.info(f"[Metas] Envios: {results['success']} ok, {results['failed']} falhas.")
-            self.supabase.log_event("metas_batch", {"run_id": self.run_id, "dataset_id": self.snapshot["dataset_id"] if self.snapshot else POWERBI_CONFIG["metas_dataset_id"],
-                                                   "period": self.period.metadata(), "success": results["success"], "failed": results["failed"]})
+            snapshot = self.snapshot or {}
+            self.supabase.log_event("metas_batch", {
+                "run_id": self.run_id,
+                "dataset_id": snapshot.get("dataset_id", POWERBI_CONFIG["metas_dataset_id"]),
+                "period": self.period.metadata(),
+                "source_load": snapshot.get("source_load"),
+                "source_freshness": snapshot.get("source_freshness"),
+                "query_sha256": snapshot.get("query_sha256"),
+                "success": results["success"],
+                "failed": results["failed"],
+            })
             if results["failed"] or not results["success"]:
                 raise RuntimeError("O lote de Metas não foi integralmente confirmado pela Evolution API.")
             return results

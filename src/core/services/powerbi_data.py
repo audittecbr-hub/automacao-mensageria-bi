@@ -78,6 +78,11 @@ class PowerBIDataFetcher:
             "source_refresh": {key: refresh.get(key) for key in ("requestId", "status", "startTime", "endTime")} if refresh else None,
             "source_load": {"kind": load[0], "at": load[1].isoformat()} if load else None,
             "source_policy": "current_loaded_bi" if self.period.mode == "current_snapshot" else load[0],
+            "source_freshness": {
+                "policy": "same_day" if self.period.mode == "daily" else "current_loaded_bi",
+                "execution_date": self.period.captured_at.date().isoformat(),
+                "load_date": load[1].date().isoformat() if load else None,
+            },
         }
         logger.info("Metas V2: %s a %s; 87 campos coletados sem cache", self.period.start, self.period.end)
         return self.snapshot
@@ -106,8 +111,12 @@ class PowerBIDataFetcher:
     def _validate_daily_load(self, load):
         if not load:
             raise DaxQueryError("Envio diário bloqueado: o V2 não tem atualização concluída (refresh ou publicação do PBIX).")
-        if load[1].date() < self.period.end:
-            raise DaxQueryError("Envio diário bloqueado: última atualização do V2 anterior à referência D-1.")
+        execution_date = self.period.captured_at.date()
+        if load[1].date() != execution_date:
+            raise DaxQueryError(
+                "Envio diário bloqueado: última atualização válida do V2 não é do dia da execução "
+                f"({execution_date.isoformat()}, America/Sao_Paulo)."
+            )
 
     @staticmethod
     def _validate_values(values):
