@@ -111,12 +111,15 @@ def daily_on_monday():
 @pytest.mark.parametrize("status,refreshed_at,published_at,expected", [
     ("Failed", "2026-09-30T14:34:16Z", "2026-10-05T15:21:40.62Z", "pbix_publication"),
     ("Completed", "2026-10-05T12:00:00Z", "2026-10-02T15:00:00Z", "completed_refresh"),
-    ("Completed", "2026-10-04T03:30:00Z", None, "completed_refresh"),
+    ("Completed", "2026-10-05T03:30:00Z", None, "completed_refresh"),
 ])
 def test_daily_accepts_the_latest_valid_load_from_refresh_or_publication(status, refreshed_at, published_at, expected):
     client = FakeModel(status=status, refreshed_at=refreshed_at, published_at=published_at)
     snapshot = PowerBIDataFetcher(daily_on_monday(), client=client).fetch_snapshot()
     assert snapshot["source_policy"] == expected
+    assert snapshot["source_freshness"] == {
+        "policy": "same_day", "execution_date": "2026-10-05", "load_date": "2026-10-05",
+    }
     assert "DATE(2026, 10, 4)" in client.calls[0][0]
 
 
@@ -124,9 +127,13 @@ def test_daily_accepts_the_latest_valid_load_from_refresh_or_publication(status,
     ("Failed", "2026-10-05T12:00:00Z", None),
     ("Failed", "2026-10-05T12:00:00Z", "2026-10-04T02:00:00Z"),  # 03/10 às 23h em Brasília
     ("Completed", "2026-10-02T12:00:00Z", "2026-10-03T12:00:00Z"),
+    ("Completed", "2026-10-04T12:00:00Z", None),  # D-1 não comprova a carga de hoje
+    ("Failed", "2026-10-05T12:00:00Z", "2026-10-04T15:00:00Z"),
+    ("Completed", "2026-10-05T02:59:59Z", None),  # Ainda é 04/10 em Brasília
+    ("Completed", "2026-10-06T03:30:00Z", None),  # Metadado com data futura
     ("Failed", None, "data-invalida"),
 ])
-def test_daily_blocks_when_no_valid_load_reaches_d1(status, refreshed_at, published_at):
+def test_daily_blocks_when_no_valid_load_is_from_the_execution_day(status, refreshed_at, published_at):
     client = FakeModel(status=status, refreshed_at=refreshed_at, published_at=published_at)
     with pytest.raises(DaxQueryError, match="atualização"):
         PowerBIDataFetcher(daily_on_monday(), client=client).fetch_snapshot()
